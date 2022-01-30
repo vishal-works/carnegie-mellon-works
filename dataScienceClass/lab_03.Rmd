@@ -1,0 +1,293 @@
+---
+title: 'Lab 3: Conditionals, Lists, and Loops'
+author: "Computation for Data Analysis"
+date: "Due Monday, 6 April 2020 by 11:59pm"
+output:
+  html_document
+---
+
+```{r, include=FALSE}
+knitr::opts_chunk$set(cache=TRUE, autodep=TRUE, cache.comments=FALSE)
+```
+
+Name:  Vishal Vaidhyanathan
+Andrew ID:  vvaidhya
+Collaborated with:  none
+
+This lab is to be done in class (completed outside of class if need be). You can collaborate with your classmates, but you must identify their names above, and you must submit **your own** lab as an knitted HTML file on Canvas, by Monday 11:59pm.
+
+**This week's agenda**: 
+ * using if()
+ * using lists and matrices
+ * using
+
+Control-Flow Constructs
+===
+
+**1a.** Write an `if-else` construct that display the string "a < A" if character "a" less than "A" and displays "a >= A" otherwise.  
+```{r}
+if ('a' < 'A') {
+  print("a < A")
+} else {
+  "a >= A"
+}
+```
+
+**1b.** In the same way, check if "b" less than "A" or not.
+```{r}
+if ('b' < 'A') {
+  print("b < A")
+} else {
+  print("b >= A")
+}
+```
+
+**1c.** Repeat question 1a, but use the `ifelse()` function.
+```{r}
+ifelse("a"<"A","a < A", "a >= A")
+```
+
+**1d.** Because `ifelse()` is a function that returns a value, it too can be vectorized!  Define a vector `x.vec` to contain the numbers 1 through 100.  Modify `x.vec` using `ifelse()` so that every **even** number is incremented by 10, and every odd number remains the same. Display the results.
+
+```{r}
+x.vec <- 1:100
+x.vec <- ifelse(x.vec %% 2 == 0, x.vec + 10, x.vec)
+print(x.vec)
+```
+
+**1e.** You are considered speeding if your speed is above 60.  If your speed is less than 80 then you will get a "small ticket" and if is 80 and above you will get a "big ticket". Otherwise you will get "no ticket". Set a variable `speed` to some value.  Next write an "if-else" statement that will print "no ticket", "small ticket" or "big ticket" appropriately based on the value of `speed`.  Try different values for `speed` to check your answer.
+
+```{r}
+speed <- 68
+if (speed > 60) {
+  if (speed < 80) {
+    print("small ticket")
+  } else {
+    print("big ticket")
+  }
+} else {
+  print("no ticket")
+}
+```
+
+**1f** Write an `if-else` statement that prints "doubles" if the two values in `dice` are both the same, prints "cat's eyes" if they are both equal to 1, and "not doubles" if they are different. 
+
+```{r}
+dice = sample(1:6, 2, replace=TRUE)
+dice
+
+if(dice[1] == dice[2]) {
+  if(dice[1] == 1) {
+    print("cat's eyes")
+  } else {
+    print("doubles")
+  }
+} else {
+  print("not doubles")
+}
+```
+
+# Lists
+
+**2a.** Create an empty list `x.lst`. Then define its <i>second</i> entry as the vector 1:3. Then print the list. What value does the first entry default to?
+```{r}
+x.lst = list()
+x.lst[[2]] = c(1:3)
+print(x.lst)
+```
+```
+The first entry defaults to NULL value.
+```
+
+**2b.** Use the `names()` function to rename the list entries to <tt>a</tt> and <tt>b</tt>. Display `x.lst` to see the names were set correctly.
+```{r}
+names(x.lst) = c("a","b")
+print(x.lst)
+```
+
+**2c.** Change the name of the first entry of the list `x.lst` to <tt>c</tt>, by setting a single value equal to "c", i.e., <i>not</i> by simply repeating your answer in the previous question. 
+```{r}
+names(x.lst)[1] = "c"
+print(x.lst)
+```
+
+**2d.** Add more values to `x.lst` using the dollar sign operator, using the double bracket notation with number, and using the double bracket notation with a character name. Display the resulting list.
+```{r}
+x.lst$c = 56
+x.lst[[3]] = c(FALSE,TRUE,TRUE)
+x.lst[["e"]] = "hello"
+print(x.lst)
+```
+
+**2e.** Consider the list `x.list` created below. Using numerial indexing, complete the following tasks , each with a single line of code:
+
+- Extract all but the second element of `x.list`---seeking here a list as the final answer.  
+- Extract the second and third elements of `x.list`, then extract the second element of the resulting list---seeking here a vector as the final answer.    
+- Extract the second element of `x.list` as a vector, and then extract the first 10 elements of this vector---seeking here a vector as the final answer. 
+
+Note: pay close attention to what is asked and use either single brackets `[ ]` or double brackets ``[[ ]]`` as appropriate.
+
+```{r}
+x.list = list(y=rnorm(4), c=letters, b=sample(c(TRUE,FALSE),size=3,replace=TRUE))
+#printing x.list to view the list
+x.list
+#answers :
+x.list[-2]
+
+x.list[c(2,3)][[2]]
+
+x.list$c[1:10]
+```
+
+**2f.** Remove the element`c` from `x.list`.  Display the list `x.list` as a numerical vector, with names associated with each element. Next display `x.list` as a numerical vector, stripping away the names.
+```{r}
+x.list = x.list[-2]
+x.list
+unlist(x.list, use.names = TRUE)
+unlist(x.list, use.names = FALSE)
+```
+
+
+## Attributes
+
+**3a.** Define a 2x3 matrix `x.mat`. Display the attributes of `x.mat`. There is one predefined attribute. Now access the second value of that predefined attribute. Do it two different ways. Hint: Use `typeof()` to determine what kind of data structure `attributes()` returns.
+```{r}
+x.mat = matrix(nrow = 2, ncol = 3)
+attributes(x.mat)
+attributes(x.mat)$dim[2]
+attributes(x.mat)[[1]][2]
+```
+
+
+**3b.** Using the `date()` function, define an attribute <tt>date</tt> for the matrix `x.mat`. Display the attributes of `x.mat` to ensure that <tt>date</tt> is one of them.
+```{r}
+attributes(x.mat)[["date"]] = date()
+attributes(x.mat)
+```
+
+**3c.** Remove the <tt>date</tt> attribute from `x.mat`. Display the attributes of `x.mat` to ensure that <tt>date</tt> is not one of them.
+```{r}
+attributes(x.mat) = attributes(x.mat)[-2]
+attributes(x.mat)
+```
+
+## Prostate cancer data set
+
+We're going to look at a data set on 97 men who have prostate cancer (from the book [The Elements of Statistical Learning](http://statweb.stanford.edu/~hastie/ElemStatLearn/)). There are 9 variables measured on these 97 men:
+
+1. `lpsa`: log PSA score
+2. `lcavol`: log cancer volume
+3. `lweight`: log prostate weight
+4. `age`: age of patient
+5. `lbph`: log of the amount of benign prostatic hyperplasia
+6. `svi`: seminal vesicle invasion
+7. `lcp`: log of capsular penetration
+8. `gleason`: Gleason score 
+9. `pgg45`: percent of Gleason scores 4 or 5 
+
+Download <tt>pros_dat.txt</tt> file from canvas and put in the same directory as this lab.  Load this prostate cancer data set into your R session, and store it as a matrix `pros.dat`:
+
+```{r}
+pros.dat = as.matrix(read.table("pros_dat.txt"))
+```
+
+
+
+**4a.** What are the dimensions of `pros.dat` (i.e., how many rows and how many columns)? Using integer indexing, print the first 6 rows and all columns; again using integer indexing, print the last 6 rows and all columns. 
+
+```{r}
+dimensions <- dim(pros.dat)
+print(dimensions)
+pros.dat[1:6,]
+pros.dat[(dimensions[1]-5):dimensions[1],]
+#can also be done as pros.dat[92:97,]
+```
+
+**4b.** Using the built-in R functions `head()` and `tail()` (i.e., do *not* use integer indexing), print the first 6 rows and all columns, and also the last 6 rows and all columns.
+
+```{r}
+head(pros.dat,6)
+tail(pros.dat,6)
+```
+
+
+**4c.** The `svi` variable in the `pros.dat` matrix is binary: 1 if the patient had a condition called "seminal vesicle invasion" or SVI, and 0 otherwise. SVI (which means, roughly speaking, that the cancer invaded into the muscular wall of the seminal vesicle) is bad: if it occurs, then it is believed the prognosis for the patient is poorer, and even once/if recovered, the patient is more likely to have prostate cancer return in the future.  
+
+Compute a logical vector called `has.svi`, of length 97, that has a `TRUE` element if a row (patient) in `pros.dat` has SVI, and `FALSE` otherwise. Then using `sum()`, figure out how many patients have SVI.
+
+```{r}
+has.svi <- ifelse(pros.dat[,5]==1,TRUE,FALSE)
+sum(has.svi)
+```
+**4d.** Extract the rows of `pros.dat` that correspond to patients with SVI, and the rows that correspond to patients without it. Call the resulting matrices `pros.dat.svi` and `pros.dat.no.svi`, respectively. You can do this in two ways: using the `has.svi` logical vector created above, or using on-the-fly logical indexing. Check that the dimensions of `pros.dat.svi` and `pros.dat.no.svi` make sense to you.
+
+```{r}
+pros.dat.svi <- pros.dat[has.svi,]
+pros.dat.no.svi <- pros.dat[!has.svi,]
+pros.dat.svi
+pros.dat.no.svi
+dim(pros.dat.svi)
+dim(pros.dat.no.svi)
+dim(pros.dat)
+```
+
+
+**4e.** Using the two matrices `pros.dat.svi` and `pros.dat.no.svi` that you created above, compute the means of each variable in our data set for patients with SVI, and for patients without it. Store the resulting means into vectors called `pros.dat.svi.avg` and `pros.dat.no.svi.avg`, respectively. Hint: for each matrix, you can compute the means with a single call to a built-in R function. What variables appear to have different means between the two groups? 
+
+```{r}
+pros.dat.svi.avg <- colMeans(pros.dat.svi)
+pros.dat.no.svi.avg <- colMeans(pros.dat.no.svi)
+pros.dat.svi.avg
+pros.dat.no.svi.avg
+```
+```
+While most of the means are quite close to each other, the variable 'pgg45' is the one that has a huge different in average between the two groups. Others are just slightly different.
+And obviously, svi would have different means because the values are different over the two groups.
+```
+
+# Computing standard deviations using iteration
+
+**5a.** Unfortuately, there is no built-in R function to compute the standard deviation of  each variable in our data set as you did to compute the means above. Instead you will write a `for()` loop to compute the standard deviations of the columns of `pros.dat.svi` and `pros.dat.no.svi`.  First define empty vectors `pros.dat.svi.sd` and `pros.dat.no.svi.sd` each of length `ncol(pros.dat)` that you fill afterwards in the body of the for loop. 
+ 
+```{r}
+pros.dat.svi.sd <- vector(length = ncol(pros.dat))
+pros.dat.no.svi.sd <- vector(length = ncol(pros.dat))
+for (i in 1:ncol(pros.dat)) {
+  pros.dat.svi.sd[i] <- sd(pros.dat.svi[,i])
+  pros.dat.no.svi.sd[i] <- sd(pros.dat.no.svi[,i])
+}
+pros.dat.svi.sd
+pros.dat.no.svi.sd
+```
+
+
+**5b.** First write a `for()` loop with an empty body that iterates an index variable `i` over the integers between 1 and the number of columns of `pros.dat` (don't just manually write 9 here, pull out the number of columns programmatically). In the body of the for loop write a line of code to compute the standard deviation of the ith column of pros.dat.svi, using a built-in R function, and store this value in the ith element of pros.dat.svi.sd. Do the same for the patients without SVI. That is, fill the `i`th element of `pros.dat.no.svi.sd` with the standard deviation of the `i`th column of `pros.dat.no.svi`.  
+
+
+```{r}
+for (i in 1:ncol(pros.dat)) {
+  pros.dat.svi.sd[i] <- sd(pros.dat.svi[,i])
+  pros.dat.no.svi.sd[i] <- sd(pros.dat.no.svi[,i])
+}
+pros.dat.svi.sd
+pros.dat.no.svi.sd
+```
+
+**5c.**
+Print out the resulting vectors `pros.dat.svi.sd` and `pros.dat.no.svi.sd` to the console. Comment, just briefly (informally), by visually inspecting these standard deviations and the means you computed in 3e. which variables exhibit large differences in means between the SVI and non-SVI patients, relative to their standard deviations?  That is, which means are approximately more than a standard deviation apart.
+```{r}
+pros.dat.svi.sd
+pros.dat.no.svi.sd
+```
+```
+While all means are according to the expected SD, the pgg45 has a huge SD, and also differs more than an SD apart.
+```
+
+**5d.** The code below computes the standard deviations of the columns of `pros.dat.svi` and `pros.dat.no.svi`, and stores them in `pros.dat.svi.sd.master` and `pros.dat.no.svi.sd.master`, respectively, using `apply()`. (We'll learn `apply()` and related functions a bit later in the course.) Remove `eval=FALSE` as an option to the Rmd code chunk, and check using `all.equal()` that the standard deviations you computed in the previous question equal these "master" copies. Note: use `check.names=FALSE` as a third argument to `all.equal()`, which instructs it to ignore the names of its first two arguments. (If `all.equal()` doesn't succeed in both cases, then you must have done something wrong in computing the standard deviations, so go back and fix them!)
+
+```{r}
+pros.dat.svi.sd.master = apply(pros.dat.svi, 2, sd)
+pros.dat.no.svi.sd.master = apply(pros.dat.no.svi, 2, sd)
+all.equal(pros.dat.no.svi.sd,pros.dat.no.svi.sd.master, check.names=FALSE)
+all.equal(pros.dat.svi.sd,pros.dat.svi.sd.master, check.names=FALSE)
+```

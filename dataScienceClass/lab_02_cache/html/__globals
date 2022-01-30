@@ -1,0 +1,38 @@
+unnamed-chunk-2	c	typeof
+unnamed-chunk-3	c	print	seq
+unnamed-chunk-4	c	print	y.vec
+unnamed-chunk-5	==	print	which	y.vec
+unnamed-chunk-6	rep	seq
+unnamed-chunk-7	append	rev
+unnamed-chunk-8	suppressWarnings
+unnamed-chunk-9	rnorm
+unnamed-chunk-10	set.seed
+unnamed-chunk-11	^	c	print	rnorm
+unnamed-chunk-12	mean	norm.draws	sd	var
+unnamed-chunk-13	<=	>=	|	norm.draws
+unnamed-chunk-14	>=	length	norm.draws	sum
+unnamed-chunk-15	<=	any	norm.draws	which
+unnamed-chunk-16	norm.draws	order	sort
+unnamed-chunk-17	>=	mean	replace	sd	which
+unnamed-chunk-18	norm.draws	summary
+unnamed-chunk-19	c	matrix
+unnamed-chunk-20	length	sum	typeof
+unnamed-chunk-21	==	dim	matrix	rowSums	sum	typeof	x.vec
+unnamed-chunk-22	&	<	<=	==	>	c	sum	x.mat
+unnamed-chunk-23	!	[<-	==	print
+unnamed-chunk-24	[<-	print	rev
+unnamed-chunk-25	set.seed
+unnamed-chunk-26	rbinom	set.seed
+unnamed-chunk-27	bin.draws.0.5	c	length	print	seq
+unnamed-chunk-28	==	bin.draws.0.5	print	sum	which
+unnamed-chunk-29	==	bin.draws.0.5.half	print	sum	which
+unnamed-chunk-30	^	bin.draws.0.5	bin.draws.0.5.half	mean	sd
+unnamed-chunk-31	bin.draws.0.2	bin.draws.0.3	bin.draws.0.4	bin.draws.0.5	bin.draws.0.6	bin.draws.0.7	bin.draws.0.8	c	mean	print	sd
+unnamed-chunk-32	mean.vec	plot	sd.vec	seq
+unnamed-chunk-33	bin.draws.0.2	bin.draws.0.3	bin.draws.0.4	bin.draws.0.5	bin.draws.0.6	bin.draws.0.7	bin.draws.0.8	cbind
+unnamed-chunk-34	bin.matrix	max	print
+unnamed-chunk-35	as.vector	bin.matrix	colMeans
+unnamed-chunk-36	==	as.vector	bin.draws.0.5	bin.matrix	colMeans	identical	mean
+unnamed-chunk-37	rowMeans	t
+unnamed-chunk-38	^	mean	rbinom	sd	set.seed
+unnamed-chunk-39	big.bin.draws	hist

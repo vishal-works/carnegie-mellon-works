@@ -1,0 +1,401 @@
+---
+title: 'Lab 6: Apply, Text, and Plotting'
+author: "Computation for Data Analysis"
+date: "Due Wednesday, 29 April 2020"
+output:
+  html_document
+---
+
+```{r, include=FALSE}
+knitr::opts_chunk$set(cache=TRUE, autodep=TRUE, cache.comments=FALSE)
+```
+
+
+Name:   Vishal Vaidhyanathan
+Andrew ID:  vvaidhya
+Collaborated with:  none
+
+This lab is to be done in class (completed outside of class if need be). You can collaborate with your classmates, but you must identify their names above, and you must submit **your own** lab as an knitted HTML file on Canvas, by **Wednesday** 11:59pm, next week.
+
+**This week's agenda**: 
+
+ - *apply() function;
+ - basic string manipulations; 
+ - reading in and summarizing real text data
+ - some plotting; 
+ 
+
+
+## Variants on Apply
+
+
+**1a.**  Create the `state.df` data frame from  the matrix `state.x77` and the factors `state.region` and `state.division`.  Name the factor columns appropriately.  Display the first 3 rows of <tt>state.df</tt> and note the column names.
+
+Using the `state.df` data frame and `tapply()`, compute and display the average life expectacy  in each of the four regions of the U.S. Display the name of the region with longest life expectancy (and only the name).  Then compute and display the average life expectancy of each of the nine divisions of the U.S., and display the name of the division with longest life expectancy (and only the name).
+
+```{r}
+state.df <- data.frame(state.x77,state.region,state.division)
+state.df[1:3,]
+
+tapply(state.df$Life.Exp,state.df$state.region,mean)
+
+names(which.max(tapply(state.df$Life.Exp,state.df$state.region,max)))
+
+tapply(state.df$Life.Exp,state.df$state.division,mean)
+
+names(which.max(tapply(state.df$Life.Exp,state.df$state.division,max)))
+```
+
+**1b.**  Split the rows of `state.df` by state region and call the resulting list `state.by.region`. Then use `lapply()` to display just the first two rows of each data frame in `state.by.region`.
+
+```{r}
+state.by.region = split(state.df, f=state.region)
+lapply(state.by.region, head, 2)
+```
+
+**1c.** Next you will write a function, called `pop.density.median()`, that you will use in the next question.  The functions takes a data frame that has two columns named `Population` and `Area` (like `state.df`).  Your function should compute the *population density* by dividing the population by area for each row of the matrix. Don't use a `for()` loop, but use a simple vectorized expression.  The function should return median population density. Check `pop.density.median(state.df)` returns $0.07301543$.
+
+```{r}
+pop.density.median <- function(input.df) {
+  pop.density <- input.df$Population/input.df$Area
+  return(median(pop.density))
+}
+pop.density.median(state.df)
+```
+
+**1d.**  Now split the rows of `state.df` by state division and call the resulting list `state.by.div`. Use `sapply()` to find the median population density using your `pop.density.median()` function.  Display the results sorted in decreasing order.
+
+```{r}
+state.by.div <- split(state.df, f = state.division)
+sort(sapply(state.by.div, pop.density.median), decreasing = TRUE)
+```
+
+**1e.**  This time, for each *region* (not division), compute and display the median *literacy* rate (not illiteracy rate). Use an "on-the-fly" function in the call to the <tt>sapply()</tt> function.  Again sort your output.
+
+```{r}
+sort(sapply(state.by.region, function(input.df) {
+  literacy.rate <- 100 - input.df$Illiteracy
+  return(median(literacy.rate))
+}), decreasing = TRUE)
+```
+
+**1f.**  In the previous question, the function you appied to each region used only one variable from the data frame.  If you use only one variable you can compute the same result using `tapply()`. Again find the median literacy rate for each region, but this time use `tapply()`.  Sort your output.  Make sure your answer agrees with your answer for the previous question.
+
+```{r}
+sort(100-tapply(state.df$Illiteracy, state.df$state.region, median), TRUE)
+```
+
+**1g.** Remove the region and division columns from the `state.df` data frame.  Check that there are only 8 columns left.  For each region (use the `state.region` factor), use `split()` and then `lapply()` to compute the means and standard deviations of the 8 variables. The means and standard deviations should be rows of a matrix with row names "mean" and "sd" (not two vectors each with their own column names).  Display the matrices for the 4 regions.
+
+```{r}
+state.df = state.df[,c(-10,-9)]
+ncol(state.df)
+
+lapply(split(state.df, state.region), function(df) {
+  mean = colMeans(df)
+  sd = apply(df,2, sd)
+  return(rbind(mean,sd))
+})
+```
+
+Some string basics
+===
+
+**2a.** Assign `my.name` to a string vector of length two, with your first name and then you last name. Show number of characters in each.
+
+```{r}
+my.name <- c("Vishal", "Vaidhyanathan")
+nchar(my.name)
+```
+
+
+**2b.** Assign single string `salut` a single string with "Regards," a newline character and then your first name.  Print it to the console using `print()` and using `cat()`. Comment on the difference.
+
+```{r}
+salut <- "Regards,\nVishal"
+print(salut)
+cat(salut)
+```
+
+```
+print() function prints it as it is, whereas the cat() function prints it with
+the newline implemented (i.e) prints the first name on the next line.
+```
+
+**2c.**  Show the number of characters in `salut`.  How many characters are the comma and the newline? 
+
+```{r}
+nchar(salut)
+```
+```
+They are one character each, total of 2 characters for the comma and newline.
+```
+
+**2d.**  Using `paste()` and `my.name`, programmatically create the exact same string as `salut` in the previous part. Be sure not to introduce unwanted spaces. Again use `print()` and `cat()` to display it.
+
+```{r}
+print(paste("Regards,",my.name[1], sep = "\n"))
+cat(paste("Regards,",my.name[1], sep = "\n"))
+```
+
+**2e.** Again, using `paste()` and `my.name`, programmatically create a string `my.book` that is your *last* name followed by a string with an apostrophe, eg,
+
+<u><tt>Reid-Miller's book</tt></u>. Display `my.book`.
+
+```{r}
+my.book <- paste(my.name[2],"s book", sep = "'")
+my.book
+```
+
+**2f.** 
+
+The functions `tolower()` and `toupper()` do as you'd expect: They convert strings to all lower case characters, and all upper case characters, respectively. Apply them to `my.book` and observe their behavior.
+
+```{r}
+toupper(my.book)
+tolower(my.book)
+```
+
+
+**2g.** Consider the string vector `presidents` of length 5 below, containing the last names of past US presidents. Define a string vector `first.initial` to contain the first letters of each of these 5 last names. This should only require one line of code. In a single line, replace the last 3 letters of each last name stored in `presidents` with "lin". Display the results.
+
+```{r}
+presidents = c("Clinton", "Bush", "Reagan", "Carter", "Ford")
+first.initial = substr(presidents,1,1)
+print(first.initial)
+`substr<-`(presidents,nchar(presidents)-2,nchar(presidents), "lin")
+```
+
+**2h.**  Now consider the string `phrase` defined below. Using `substr()`, replace the first four characters in `phrase` by "Provide". Print `phrase` to the console, and describe the behavior you are observing. Using `substr()` again, replace the last five characters in `phrase` by "kit" (don't use a numeric literal in the call to `substr()`, instead, compute the length  of <tt>phrase</tt>). Print `phrase` to the console, and describe the behavior you are observing.
+
+```{r}
+phrase = "Give me a break"
+phrase = `substr<-`(phrase,1,4,"Provide")
+print(phrase)
+phrase = `substr<-`(phrase,nchar(phrase)-4,nchar(phrase),"kit")
+print(phrase)
+```
+```
+It replaces only to the given size, and hence doesn't use the entire replace
+value. so since only 4 characters are to be replaced, it uses only
+"Prov" of "Provide".
+
+In this case, since there are only 3 characters available when 5 characters
+are to be replaced, it replaces only the first 3 characters and retains 
+the rest. So, "break" becomes "kitak", where first 3 characters are "kit".
+```
+
+Clinton's Speech
+===
+
+The file `clinton.txt` on canvas is Hillary Clinton’s speech at the 2016 Democratic National Convention.  Copy `clinton.txt` from canvas into your lab directory.  Below, we use `readLine()` to read the text file line-by-line into a vector of strings. Each element represents a *line* of text.
+
+```{r}
+clinton.lines = readLines("clinton.txt")
+```
+
+Reading in text, basic exploratory tasks
+===
+
+**3a.** Print the first 5 lines. How many lines are there? How many characters in the longest line? What is the average number of characters per line? How many lines are there with zero characters (empty lines)? Hint: You can use a logical subsetting.
+```{r}
+#first 5 lines
+print(clinton.lines[1:5])
+#total number of lines
+length(clinton.lines)
+#no of characters in the longest line
+max(nchar(clinton.lines))
+#average no of characters per line
+mean(nchar(clinton.lines))
+#no of lines with 0 characters
+sum(nchar(clinton.lines) == 0)
+```
+
+
+**3b.** Collapse the lines in `clinton.lines` into one big string, separating each line by a space, using `paste()`. Call the resulting string `clinton.all`. How many characters does this string have? How does this compare to the sum of characters in `clinton.lines`? What is the difference between the number of characters of these two? Explain why they are different?
+
+```{r}
+clinton.all <- paste(clinton.lines, collapse = " ")
+nchar(clinton.all)
+sum(nchar(clinton.lines))
+nchar(clinton.all) - sum(nchar(clinton.lines))
+```
+```
+They are different because of the additional " " (space) characters that were
+added while collapsing them together, so for 301 lines, 300 extra spaces were 
+added.
+```
+
+**2c.** Split up `clinton.all` into words, using `strsplit()` with `split=" "`. Call the resulting string vector (note: here we are asking you for a vector, not a list) `clinton.words`. Display the first 50 words. How long is this vector, i.e., how many words are there? Using the `unique()` function, compute and store the unique words as `clinton.words.unique`. Show how many unique words are there.  
+
+```{r}
+clinton.words <- unlist(strsplit(clinton.all, split = " "))
+clinton.words[1:50]
+length(clinton.words)
+clinton.words.unique <- unique(clinton.words)
+length(clinton.words.unique)
+```
+
+A tiny bit of regular expressions
+===
+
+**4a.** There are a couple of issues with the way we've built our words in `clinton.words`. The first is that capitalization matters; "and" and "And" are counted as separate words. The second is that many words contain punctuation marks (and so, aren't really words in the first place).  You can see this in the words listed in the previous question.
+
+The fix for the first issue is to convert `clinton.all` to all lower case characters. Hint: recall `tolower()` from Q2f. The fix for the second issue is to use the argument `split="[[:space:]]|[[:punct:]]+[[:space:]]"` in the call to `strsplit()`. In words, this means: *split on white spaces or on punctuation marks followed by white spaces*. It uses what we call a **regular expression** for the `split` argument. Carry out both of these fixes to define new word vector `clinton.words.clean`.
+    
+There are still some non-words. Some words have zero characters. Some words are the start of a quotation.  Remove the empty words (with zero characters) from `clinton.words.clean`, using logical indexing. For words that start with a quote, replace the word with the same word without the initial quote. Hint: `ifelse` may be helpful here. Display the first 50 words remaining.
+
+
+```{r}
+clinton.all <- tolower(clinton.all)
+clinton.words.clean <- unlist(strsplit(clinton.all, 
+                              split="[[:space:]]|[[:punct:]]+[[:space:]]"))
+clinton.words.clean <- clinton.words.clean[which(nchar(clinton.words.clean) != 0)]
+clinton.words.clean <- ifelse(substr(clinton.words.clean,1,1) == '\"',substr(clinton.words.clean,2,nchar(clinton.words.clean)),clinton.words.clean)
+clinton.words.clean[1:50]
+```
+
+
+**4b.** Reset  `clinton.words.unique` to the unique words in `clinton.words.clean`. How many unique words are there? Using the `order()` function, find the indices that correspond to the top 5 longest words in `clinton.words.unique`. Then, print the top 5 longest words themselves. Is  one of those words a compound word? Explain why it might be there.
+    
+```{r}
+clinton.words.unique <- unique(clinton.words.clean)
+length(clinton.words.unique)
+
+indices <- order(nchar(clinton.words.unique), decreasing = TRUE)[1:5]
+indices
+clinton.words.unique[indices]
+```
+```
+It would be here because it doesn't fall under any of the categories we removed
+earlier. It is not a space, it doesn't start with quotes, and the hyphens
+are inbetween, making them considered to be a single word. So total number
+of characters would be for the whole compound word.
+```
+
+**4c.** Plot a histogram of the number of characters of the words in `clinton.words.unique`. Use breaks locations occuring at every word length.  Color the histogram to your liking; label the x-axis, and title the histogram appropriately.  What does the bulk of this distribution look like to you? What is the mode, *i.e.*, the common word length? Why is the x-axis on the histogram extended far to the right?
+
+```{r}
+hist(nchar(clinton.words.unique), breaks = unique(nchar(clinton.words.unique)), 
+     col = "red", xlab = "Number of Characters", main = "histogram of the 
+     number of characters of the words in `clinton.words.unique`")
+
+mode <- function(data) {
+   unique(data)[which.max(tabulate(match(data, unique(data))))]
+}
+mode(nchar(clinton.words.unique))
+
+unique(nchar(clinton.words.unique))
+```
+
+```
+The histogram looks like a almost normal distribution. The mode can be identified
+from the histogram to be 5, it has also been computed above through a custom made
+function.
+
+The line has extnded to cover the extent of the data available. For example, there
+is just one word with length 18, which means the density is close to zero. However,
+it exists in the data so it has been extended that way.
+```
+    
+Plot basics
+===
+
+**5a.** Below is some code that is very similar to that from the lecture, but with one key difference. Explain: why does the `plot()` result with `type="p"` look normal, but the `plot()` result with `type="l"` look abnormal, having crossing lines? Then modify the code below (hint: modify the original definition of `x`), so that the lines on the second plot do not cross. 
+
+```{r}
+n = 50
+set.seed(0)
+#sorting to fix the crossover of lines
+x = sort(runif(n, min=-2, max=2))  # Fix this
+y = x^3 + rnorm(n)
+plot(x, y, type="p")
+plot(x, y, type="l")
+```
+```
+The type 'l' is abnormal with crossing lines because the data is not sorted, and
+hence they cross over each other. To fix it, it has to be sorted.
+```
+**4b.** The `cex` argument can used to shrink or expand the size of the points that are drawn. Its default value is 1 (no shrinking or expansion). Values between 0 and 1 will shrink points, and values larger than 1 will expand points. Plot `y` versus `x`, first with `cex` equal to 0.5 and then 2 (so, two separate plots). Give titles "Shrunken points", and "Expanded points", to the plots, respectively.
+
+```{r}
+plot(x, y, type="p", cex = 0.5, main = "Shrunken points")
+plot(x, y, type="p", cex = 2, main = "Expanded points")
+```
+
+**5c.** The `xlim` and `ylim` arugments can be used to change the limits on the x-axis and y-axis, respectively. Each argument takes a vector of length 2, as in `xlim = c(-1, 0)`, to set the x limit to be from -1 to 0. Plot `y` versus `x`, with the x limit set to be from -1 to 1, and the y limit set to be from -5 to 5. Set the title to "Limited axes ranges".
+
+```{r}
+plot(x, y, type="p", xlim = c(-1,0), ylim = c(-5,5), main = "Limited axes ranges")
+```
+
+
+**5d.** Again plot `y` versus `x`, only showing points whose x values are between -1 and 1. But this time, define `x.trimmed` to be the subset of `x` between -1 and 1, and define `y.trimmed` to be the corresponding subset of `y`. Then plot `y.trimmed` versus `x.trimmed` without setting `xlim` and `ylim`. Assign x and y labels "Trimmed x" and "Trimmed y", respectively. Notice that here that the y limit is (automatically) set as "tight" as possible. Hint: use logical indexing to define `x.trimmed`, `y.trimmed`.
+
+```{r}
+plot(x,y,type = 'p',xlim = c(-1,1))
+
+x.trimmed <- x[which(x > -1 & x < 1)]
+y.trimmed <- y[which(x > -1 & x < 1)]
+plot(x.trimmed, y.trimmed, xlab = "Trimmed x", ylab = "Trimmed y")
+```
+
+
+**5e.** The `pch` argument, recall, controls the point type in the display. In the lecture examples, we set it to a single number. But it can also be a vector of numbers, with one entry per point in the plot. So, e.g.,
+
+```{r}
+plot(1:18, 1:18, pch=1:18)
+```
+
+displays the first 18 point types. If `pch` is a vector whose length is shorter than the total number of points to be plotted, then its entries are recycled, as appropriate. Plot `y` versus `x`, with the point type alternating in between an empty circle and a filled circle. 
+    
+```{r}
+#1. Alternating just between empty and filled circle
+plot(x, y, pch = c(1,16))
+```
+    
+
+**5f.** The `col` argument, recall, controls the color the points in the display. It operates similar to `pch`, in the sense that it can be a vector, and if the length of this vector is shorter than the total number of points, then it is recycled appropriately. Plot `y` versus `x`, and repeat the following pattern for the displayed points: a black empty circle, a blue filled circle, a black empty circle, a red filled circle.
+
+```{r}
+plot(x,y,pch = c(1,16), col = c("black","blue","black","red"))
+```
+
+Adding to plots
+===
+
+**6a.** Another set of points `x2` and `y2` are defined below. Produce a scatter plot of `y` versus `x`, and set the title and axes labels as you see fit. Then overlay on top a scatter plot of `y2` versus `x2`, using the `points()` function.  In the call to `points()`, set the `pch` and `col` arguments appropriately so that the overlaid points are drawn as filled blue circles. 
+
+```{r}
+x2 = sort(runif(n, min=-2, max=2))
+y2 = x^2 + rnorm(n)
+```
+
+```{r}
+plot(x,y, main = "Overlaid y2 vs x2 on y vs x plot", xlab = "X", ylab = "Y")
+points(x2,y2,pch = 16, col = "blue")
+```
+
+**6b.** Starting with your solution code from the last question, overlay a line plot of `y2` versus `x2` on top of the plot (which contains empty black circles of `y` versus `x`, and filled blue circles of `y2` versus `x2`), using the `lines()` function. In the call to `lines()`, set the `col` and `lwd` arguments so that the line is drawn in red, with twice the normal thickness. Look carefully at your resulting plot. Does the red line pass overtop of or underneath the blue filled circles? What do you conclude about the way R *layers* these additions to your plot?
+
+```{r}
+plot(x,y, main = "Overlaid y2 vs x2 on y vs x plot", xlab = "X", ylab = "Y")
+points(x2,y2,pch = 16, col = "blue")
+lines(x2,y2,col = "red", lwd = 2)
+```
+```
+It passes overtop of the blue points. We can now understand that R layers new
+additions on top of the previous ones.
+```
+**6c.** Starting with your solution code from the last question, add a legend to the bottom right corner of the the plot using `legend()`. The legend should display the text: "Cubic" and "Quadratic", with corresponding symbols: an empty black circle and a filled blue circle, respectively. 
+
+```{r}
+plot(x,y, main = "Overlaid y2 vs x2 on y vs x plot", xlab = "X", ylab = "Y")
+points(x2,y2,pch = 16, col = "blue")
+lines(x2,y2,col = "red", lwd = 2)
+legend(1.2,-3,legend = c("Cubic", "Quadratic"), pch = c(1,16), 
+       col = c("black","blue"))
+```
+
+
+

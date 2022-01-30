@@ -1,0 +1,21 @@
+unnamed-chunk-2	pros.dat
+unnamed-chunk-3	dimension
+unnamed-chunk-4	
+unnamed-chunk-5	i
+unnamed-chunk-6	breaks_no.svi	breaks_split_no.svi	breaks_split_svi	breaks_svi	density_no.svi	density_svi	lcavol_no_svi	lcavol_svi	no_svi_hist	svi_hist
+unnamed-chunk-7	datatype_tests	t.test.by.ind	tests
+unnamed-chunk-8	lcavol_p_value
+unnamed-chunk-9	rio
+unnamed-chunk-10	missing.rows
+unnamed-chunk-11	athletes.by.region
+unnamed-chunk-12	
+unnamed-chunk-13	most_medals	rio	total
+unnamed-chunk-14	total.by.nat
+unnamed-chunk-15	athletes.in.region	zero	zero_athletes
+unnamed-chunk-16	age	rio
+unnamed-chunk-17	medal_athletes
+unnamed-chunk-18	
+unnamed-chunk-19	oldest_athletes	youngest_athletes
+unnamed-chunk-20	create_word_table	word.table
+unnamed-chunk-21	word.table
+unnamed-chunk-22	create_word_table	result_table

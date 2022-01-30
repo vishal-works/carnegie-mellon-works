@@ -1,0 +1,21 @@
+unnamed-chunk-2	read.table
+unnamed-chunk-3	dim	names	print	pros.dat
+unnamed-chunk-4	apply	cat	mean	pros.dat	sd
+unnamed-chunk-5	!=	[[	for	names	paste	plot	pros.dat	which
+unnamed-chunk-6	==	$	$<-	as.integer	c	density	hist	legend	length	lines	max	min	plot	pros.dat	range	rgb	seq	which
+unnamed-chunk-7	==	$	all	c	class	lapply	print	pros.dat	return	stopifnot	t.test
+unnamed-chunk-8	[[	$	class	lapply	print	return	tests
+unnamed-chunk-9	read.csv
+unnamed-chunk-10	any	apply	class	dim	is.na	names	paste	rio	sum
+unnamed-chunk-11	$	as.character	c	lapply	length	levels	names	nrow	paste	rio	split	which.max
+unnamed-chunk-12	c	colSums	names	paste	rio
+unnamed-chunk-13	==	$	$<-	lapply	max	paste	print
+unnamed-chunk-14	==	$	max	names	paste	print	rio	sum	tapply	which.max
+unnamed-chunk-15	==	athletes.by.region	lapply	names	nrow	paste	print	total.by.nat	which.max
+unnamed-chunk-16	==	$	$<-	as.character	as.integer	c	max	min	paste	sapply	strsplit
+unnamed-chunk-17	!=	==	$	as.character	c	max	min	paste	rio	which
+unnamed-chunk-18	$	nrow	print	rio	sapply	split	sum
+unnamed-chunk-19	$	cbind	max	min	rio	tapply
+unnamed-chunk-20	!=	==	ifelse	nchar	paste	readLines	return	strsplit	substr	table	tolower	unlist	which
+unnamed-chunk-21	==	>	>=	class	create_word_table	paste	sum
+unnamed-chunk-22	!=	==	as.vector	head	if	ifelse	length	nchar	paste	readLines	return	strsplit	substr	tail	tolower	unlist	which

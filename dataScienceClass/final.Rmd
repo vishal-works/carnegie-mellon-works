@@ -1,0 +1,482 @@
+---
+title: "Take-Home Final Exam"
+author: "Computation for Data Analysis"
+date: 'Due: Monday, 11 May 2020 by 11:59 pm'
+---
+
+```{r, include=FALSE}
+knitr::opts_chunk$set(cache=TRUE, autodep=TRUE, cache.comments=FALSE)
+```
+
+
+Name: Vishal Vaidhyanathan
+Andrew ID:  vvaidhya
+
+#Instructions
+
+- You must work alone.
+- Submit your knitted HTML or pdf file to Canvas by **Monday, 11 May 2020 by 11:59 pm**.  There are no grace days.
+- For full credit on each question, make sure you follow exactly what is asked and answer each prompt.  The total is 100 points.
+- You may only ask clarification questions on Piazza; you may not ask for help unless you have problems loading data files.  This is final project not a lab.
+- Do not cheat.  It will end poorly for everyone.
+
+#Style 
+
+- use column names rather numerical indexes
+- use informative variables names
+- use comments to make it clear what you are attempting to do
+- keep your code as simple as possible 
+- determine answers programmatically instead of manually
+
+Prostate cancer data set
+===
+
+Let's return to the prostate cancer data set that we looked at in Week 3 (taken from the book [The Elements of Statistical Learning](http://statweb.stanford.edu/~hastie/ElemStatLearn/)). Recall, there are 9 variables measured on these 97 men:
+
+1. `lcavol`: log cancer volume
+2. `lweight`: log prostate weight
+3. `age`: age of patient
+4. `lbph`: log of the amount of benign prostatic hyperplasia
+5. `svi`: seminal vesicle invasion
+6. `lcp`: log of capsular penetration
+7. `gleason`: Gleason score 
+8. ` pgg45`: percent of Gleason scores 4 or 5 
+9. `lpsa`: log PSA score
+
+Download the `pros_dat.txt` file from the Week 3 of the course canvas website. The following loads the data set into your R session, and stores it as a data frame `pros.dat`:
+
+```{r}
+pros.dat = read.table("pros_dat.txt")
+```
+
+**1a (3 pts)** Display its dimensions and the first 3 rows. Then display all the column names except for column 5. Finally display the column name for column 5.  
+```{r}
+#Displaying Dimensions and the first three rows
+dimension <- dim(pros.dat)
+print(dimension)
+print(pros.dat[1:3,])
+
+#Displaying all column Names except column 5 (svi) and then name of column 5
+names(pros.dat)[-5]
+names(pros.dat)[5]
+```
+
+**1b (3 pts)** Calculate the mean of each variable. Also, calculate the standard deviation of each variable. Each should require just one line of code. Display your results.
+```{r}
+cat("Means :\n")
+# Mean of each variable in one line
+apply(pros.dat,2,FUN = mean)
+
+cat("SDs :\n")
+#Standard Deviation of each variable in one line
+apply(pros.dat,2,FUN = sd)
+```
+
+**1c (6 pts)** Now create plot for each variable against SVI. Using a loop, plot each variable, excluding SVI, on the y-axis with SVI on the x-axis. Label the x-axis and y-axis in your plots appropriately. For full credit, use column names not numerical indices in your code. 
+
+```{r}
+#Iterating over each column (except svi) to plot against svi
+for(i in names(pros.dat)[which(names(pros.dat) != "svi")]){
+  plot(pros.dat[["svi"]],pros.dat[[i]], xlab = "svi", ylab = i, 
+       main = paste("Plot of ",i," against svi"))
+}
+```
+
+**1d (10 pts)** Create a pair of overlapping histogram density plots of the `lcavol` variable for the SVI (value 1) and non-SVI (value 0) groups. Use 20 bars over the full range of <tt>lcavol</tt> values. Do this programmatically, not manually. Color the two groups of bars two different colors, one of them a transparent color. Add an estimated density line for each group. Provide labels and a legend as appropriate.
+
+```{r}
+#identifying the two required data
+lcavol_svi <- pros.dat$lcavol[which(pros.dat$svi == 1)] #With SVI
+lcavol_no_svi <- pros.dat$lcavol[which(pros.dat$svi == 0)] #Without SVI
+
+#calculating bin-split for each variable to get 20 bins overall proportionally
+#no of breaks
+breaks_no.svi <- as.integer(length(lcavol_no_svi)/length(pros.dat$lcavol) * 20)
+breaks_svi <- 20 - breaks_no.svi
+#breaks vector
+breaks_split_svi = seq(min(lcavol_svi),max(lcavol_svi),
+                       by=((max(lcavol_svi) - min(lcavol_svi))/(breaks_svi)))
+breaks_split_no.svi = seq(min(lcavol_no_svi),max(lcavol_no_svi),
+                          by=((max(lcavol_no_svi) - min(lcavol_no_svi))/(breaks_no.svi)))
+
+#histograms of each variable with 20 bars in all
+svi_hist <- hist(lcavol_svi, main = "Histogram of lcavol_svi", breaks = breaks_split_svi)
+no_svi_hist <- hist(lcavol_no_svi, main = "Histogram of lcavol_no_svi", 
+                    breaks = breaks_split_no.svi)
+
+#Overlapping with proper ylim, over the full range of lcavol, with colours
+plot(svi_hist, ylim = c(0,max(c(svi_hist$count,no_svi_hist$count))),
+     main = "Overlapping Histogram of lcavol",
+     xlab = "lcavol svi and no svi overlapped",
+     col = "red",
+     xlim = range(min(pros.dat$lcavol),max(pros.dat$lcavol)))
+
+plot(no_svi_hist, ylim = c(0,max(c(svi_hist$count,no_svi_hist$count))), 
+     col = rgb(red = 0, blue = 1, green = 0, alpha = 0.5),
+     xlim = range(min(pros.dat$lcavol),max(pros.dat$lcavol)),
+     add = TRUE)
+
+#Density vector calculaiton
+density_svi <- density(lcavol_svi)
+density_no.svi <- density(lcavol_no_svi)
+#adjusting y to increase size (based on max of ylim in histogram)
+density_svi$y = density_svi$y * 12 #Not needed, but done for visual purposes
+density_no.svi$y = density_no.svi$y * 12 #Not needed, but done for visual purposes
+
+#drawing the density lines
+lines(density_svi, lwd = 2, lty = "dotted")
+lines(density_no.svi, lwd = 2)
+
+#Legends
+legend("topright", c("NO SVI", "SVI", "DENSITY OF NO SVI", "DENSITY OF SVI"), 
+       fill=c(rgb(red = 0, blue = 1, green = 0, alpha = 0.5), "red", NA, NA),
+       border = c("black", "black", NA, NA),
+       lty = c(NA, NA, "solid", "dotted"))
+```
+
+
+**1e (5 pts)** Now, use `lapply()` to perform t-tests for each variable in the data set, between SVI and non-SVI groups. To be precise, you will perform a t-test for each variable excluding the SVI variable itself for a total of 8 t-tests. For convenience, we've defined a function `t.test.by.ind()` below, which takes a numeric variable `x`, and then an indicator variable `ind` (of 0s and 1s) that defines the groups. Run this function on the columns of `pros.dat`, excluding the SVI column itself, and save the result as `tests`. Determine what kind of data structure `tests` is, and print it to the console.
+
+```{r}
+t.test.by.ind = function(x, ind) {
+  stopifnot(all(ind %in% c(0, 1)))
+  return(t.test(x[ind == 0], x[ind == 1]))
+}
+#T-Test lapply() method
+tests <- lapply(pros.dat[,-5],FUN = t.test.by.ind, ind = pros.dat$svi)
+
+#checking data structure type
+datatype_tests <- class(tests)
+
+#Printing
+print(datatype_tests)
+```
+```
+It is a list type variable
+```
+
+**1f (6 pts) ** Take a look at the first element of the `tests` object you created in the last question. Display to the console what kind of object is it, and extract and display its p-value. Using what you have learned, extract the p-values from `tests`. Use an apply function, in a single line of code. 
+
+```{r}
+#Taking a look
+tests[[1]]
+
+#Type of object
+class(tests[[1]]) #It is of type Hypothesis test 
+
+#Extracting and displaying P value
+lcavol_p_value <- tests$lcavol$p.value
+print(lcavol_p_value)
+
+#Extracting all p-values using apply()
+lapply(tests, FUN = function(x) return(x$p.value))
+```
+
+
+Rio Olympics data set
+===
+
+Now we're going to examine data from the 2016 Summer Olympics in Rio de Janeiro, taken from https://github.com/flother/rio2016 (itself put together by scraping the official Summer Olympics website for information about the athletes). Download the `rio.csv` file from the Finale module on the course website.  The following reads in the data and stores it as `rio`.  
+
+**Note that all nonnumeric columns are factor variables**.  Recall that factors are stored internally as integers. If `x` is a factor variable, you can get the level names for each <tt>x</tt> using `levels(x)`. 
+
+In the following questions, when it asks you **to write a sentence**, for full credit write it **programmatically** using the appropriate text functions.  That is, your `R` code should generates the sentence with the correct values, even if the data changed. 
+
+```{r}
+rio = read.csv("rio.csv")
+```
+
+**2a (4 pts)** What kind of object is `rio`. Display its dimensions and columns names. What does each row represent? Determine if there is any missing data? If there is, how many **rows** contain missing data?
+
+```{r}
+#kind of object
+class(rio)
+
+#Dimension and Column Names
+dim(rio)
+names(rio)
+
+#Each row is an athlete and his attributes, for example
+rio[11,]
+
+#Missing data check
+missing.rows <- sum(apply(rio, MARGIN = 1, function(x) any(is.na(x))))
+
+#Yes, there are missing data
+paste("There are",missing.rows,"rows with missing data")
+```
+
+```
+rio is a data.frame object
+Each row is an athlete in rio olympics
+Yes there is missing data
+```
+
+**2b (6 pts)** Use `rio` to answer the following questions. Write a sentence to the console for each answer.  How many athletes competed in the 2016 Summer Olympics? How many countries were represented? What were these countries, and how many athletes competed for each one? Which country brought the most athletes, and how many was this? 
+
+```{r}
+#How many athletes?
+paste("There were", as.character(nrow(rio)), "athletes in 2016 olympics" )
+
+#How many countries?
+paste("They represented", length(levels(rio$nationality)), "countries!")
+
+#What were the contries?
+paste(c("These countries are as follows",levels(rio$nationality)),collapse = ", ")
+
+#How many per country
+athletes.by.region <- split(rio, f = rio["nationality"])
+paste(names(lapply(athletes.by.region, FUN = nrow)),"brought",
+      lapply(athletes.by.region, FUN = nrow),"athletes", collapse = ", ")
+
+#country with the most athletes and the number
+paste(names(which.max(lapply(athletes.by.region, FUN = nrow))),"brought the most number with",
+      lapply(athletes.by.region, FUN = nrow)[which.max(lapply(athletes.by.region, FUN = nrow))],
+      "athletes")
+```
+
+**2c (2 pts)**  In a sentence, display an answer to the following question. How many medals of each type---gold, silver, bronze---were awarded at this Olympics? 
+
+```{r}
+paste("There were",paste(colSums(rio[c("gold","silver","bronze")]),
+      names(colSums(rio[c("gold","silver","bronze")])),collapse = ","),"medals awarded")
+```
+
+**2d (5 pts)** Create a column called `total` that adds the number of gold, silver, and bronze medals for each athlete, and add this column to `rio`. Which athlete had the most number of medals and how many was this? Gold medals? Silver medals? In the case of ties, here, display all the relevant athletes. 
+```{r}
+#Column Creation
+total = rio$gold + rio$silver + rio$bronze
+rio$total <- total
+
+#One with the most medals
+most_medals <- lapply(rio, function(x) x[rio$total == max(rio$total)])
+print(paste(most_medals$name,"has the most medals with",most_medals$gold,
+            "gold medal(s),",most_medals$silver,"silver medal(s) and",
+            most_medals$bronze,"bronze medal(s)"), max.levels = 0)
+
+#Will work if more than one person has the most number of medals. 
+#(test with rio$total == 4 in the test condition. )
+```
+
+
+**2e (5 pts)** Using `tapply()`, calculate the total medal count for each country. Save the result as `total.by.nat`, and print it to the console. For each of the following questions, print a statement that states the answer. Which country had the most number of medals, and how many was this? How many countries had zero medals?
+
+```{r}
+#Medal count by country using tapply()
+total.by.nat <- tapply(rio$total, rio$nationality, sum)
+print(total.by.nat)
+
+#Country with most medals
+print(paste(names(which.max(total.by.nat)),"has the most, with",max(total.by.nat),
+            "medals"))
+
+#Countries with zero medals
+print(paste(sum(total.by.nat == 0),"countries have zero medals."))
+```
+
+
+**2f (5 pts)** Among the countries that had zero medals, which had the most athletes, and how many athletes was this?
+```{r}
+#Countries with zero medals
+zero <- total.by.nat[total.by.nat == 0]
+
+#no of athletes per nation
+athletes.in.region <- lapply(athletes.by.region, FUN = nrow)
+
+#No of athletes in zero nations
+zero_athletes <- athletes.in.region[names(zero)]
+
+#Final Answer
+print(paste(names(which.max(zero_athletes)),"has the most, with",
+            zero_athletes[which.max(zero_athletes)],
+            "athletes and no medals"))
+```
+
+
+Young and old by sport
+===
+
+**3a (6 pts)** The variable `date_of_birth` contains strings of the date of birth of each athlete. Use text processing commands to extract the year of birth, and create a new numeric variable called `age`, equal to 2016 - (the year of birth). (Here we're ignoring days and months for simplicity.) Add the `age` variable to the `rio` data frame.  Who is the oldest athlete, and how old is he/she? Who is the youngest athlete, and how old is he/she? In the case of ties, here, display all the relevant athletes. 
+
+```{r}
+#Age column
+age = strsplit(as.character(rio$date_of_birth),"-")
+age = sapply(age, function(x) 2016 - as.integer(x[1]))
+rio$age = age
+
+#oldest athlete
+paste(c("The oldest athlete(s) are",paste(as.character(rio$name[rio$age == max(rio$age)]),collapse = ", "),"aged",
+        max(rio$age)), collapse = " ")
+
+#Youngest Athlete
+paste(c("The youngest athlete(s) are",paste(as.character(rio$name[rio$age == min(rio$age)]),collapse = ", "),"aged",
+        min(rio$age)), collapse = " ")
+```
+
+**3b (4 pts)** Answer the same questions as in the last part, but now only among athletes who won a medal.
+
+```{r}
+#athletes df with medals
+medal_athletes = rio[which(rio$total != 0),]
+
+#oldest athlete with medals
+paste(c("The oldest athlete(s) with medals are/is",
+        paste(as.character(medal_athletes$name[medal_athletes$age == max(medal_athletes$age)]),
+        collapse = ", "),"aged",
+        max(medal_athletes$age)), collapse = " ")
+
+#youngest athlete with medals
+paste(c("The youngest athlete(s) with medals are/is",
+        paste(as.character(medal_athletes$name[medal_athletes$age == min(medal_athletes$age)]),
+        collapse = ", "),"aged",
+        min(medal_athletes$age)), collapse = " ")
+```
+
+**3c (5 pts)** Using `split()` and `sapply()` find the number of participants in each sport and the number of gold medals given out for each sport.  
+
+```{r}
+print("Number of participants in each sport :-")
+#Number of participants for each sport
+sapply(split(rio, rio$sport), FUN = nrow)
+
+print("Number of Gold Medals in each sport :-")
+#number of gold medals
+sapply(split(rio, rio$sport), function(x) sum(x$gold))
+```
+
+
+**3d (5 pts)** How old are the youngest and oldest athletes for each sport? Your answer should be a matrix that has one row for each sport, and two columns that display the ages of the youngest and oldest athletes in that sport. The first 3 rows should look like this:
+
+```
+                  Youngest Oldest
+aquatics               14     41
+archery                17     44
+athletics              16     47
+```
+  
+```{r}
+#oldest athlete age by sport
+oldest_athletes <- tapply(rio$age, rio$sport, max)
+
+#youngest athlete age by sport
+youngest_athletes <- tapply(rio$age, rio$sport, min)
+
+#Matrix
+cbind(Youngest = youngest_athletes,Oldest = oldest_athletes)
+```
+
+Text and functions
+===
+
+Now we will return to analyzing a text word file by writing two versions of a function to create a table of word frequencies.  Download the `clinton.txt` file from Week 6 of the canvas website.
+
+**4a (8 pts)** Create a function named `create_word_table()` that returns a table of words given the name of a text file as input.  Your function should use `readLines()` to read the file, split the text at every line and single space into words (all lower case), remove empty words, and finally use `table()` to return a table of word frequencies. Be sure to provide comments before the function that describes your function and lists its inputs and output. 
+
+```{r}
+#create_word_table()
+# returns a table of words given the name of a text file as input.
+# Parametrs : file - file name to read.
+# Returns : table
+create_word_table <- function(file) {
+  #Reading the file and extracting the lines
+  file.lines = readLines(file)
+  #Collapsing all lines to remove empty lines
+  file.lines.combined <- paste(file.lines, collapse = " ")
+  #Extracting lowercased words without space or space with puctuations
+  file.words <- unlist(strsplit(tolower(file.lines.combined), 
+                split = "[[:space:]]|[[:punct:]]+[[:space:]]"))
+  #Removing empty words
+  file.words <- file.words[which(nchar(file.words) != 0)]
+  #Removing words with "\"
+  file.words <- ifelse(substr(file.words,1,1) == '\"',
+                substr(file.words,2,nchar(file.words)),file.words)
+  #Returning table of the cleaned words
+  return(table(file.words))
+}
+
+#Testing Function
+word.table <- create_word_table("clinton.txt")
+```
+
+**4b (4 pts)** Call your function on the `clinton.txt` word file and show the first 30 elements returned. What kind of object is the return table.  How many words did clinton use just once? Twice? At least 10 times? More than 100 times? 
+
+```{r}
+#Calling Function
+word.table <- create_word_table("clinton.txt")
+
+#First 30 elements
+word.table[1:30]
+#kind of object
+class(word.table[1:30])
+
+#Words used just once
+paste("Clinton used",sum(word.table == 1),"words just once")
+
+#Words used twice
+paste("Clinton used",sum(word.table == 2),"words twice")
+
+#Words used atleast 10 times
+paste("Clinton used",sum(word.table >= 10),"words atleast 10 times")
+
+#Words used more than 100 times
+paste("Clinton used",sum(word.table > 100),"words more than 100 times")
+```
+
+**4c (8 pts)** Improve your function by adding `split` as an argument, with a default value that splits at white spaces and at punctuation followed by white spaces.  Add logical arguments with default values that indicate whether or not to sort the word table (sort in decreasing order) or whether or not to plot the sorted word table. The plot should always be sorted regardless of the value of the sort argument. Plot the sorted word counts (not the words) on the y-axis versus the ranks (indexes of the counts) on the x-axis.  The plot type should be a line and have labels as appropriate.  Update your comments for the new inputs and their default value. Call your function on the `clinton.txt` word file with the sort and plot arguments set to true (which need not be your default values) and show the first 20 elements and last 10 elements returned.
+
+```{r}
+#create_word_table() improved
+# returns a table of words given the name of a text file as input.
+# Parametrs : file - file name to read. split - character to split at. default value
+#             is "[[:space:]]|[[:punct:]]+[[:space:]]"
+#             sort - whether soring is needed (default = FALSE), 
+#             plot - whether plotting is needed.(default = FALSE)
+# Returns : table - table of words
+create_word_table <- function(file, split = "[[:space:]]|[[:punct:]]+[[:space:]]",
+                              sort = FALSE, plot = FALSE) {
+  #Reading the file and extracting the lines
+  file.lines = readLines(file)
+  #Collapsing all lines to remove empty lines
+  file.lines.combined <- paste(file.lines, collapse = " ")
+  #Extracting lowercased words without space or space with puctuations
+  file.words <- unlist(strsplit(tolower(file.lines.combined), 
+                split = split))
+  #Removing empty words
+  file.words <- file.words[which(nchar(file.words) != 0)]
+  #Removing words with "\"
+  file.words <- ifelse(substr(file.words,1,1) == '\"',
+                substr(file.words,2,nchar(file.words)),file.words)
+
+  table = table(file.words)
+  #plotting is plotting is true
+  if(plot == TRUE) {
+    #using sorted table for plot
+    plot_table <- sort(table, decreasing = TRUE)
+    #Making an index vector to get corresponding rank
+    x_axis <- 1:length(plot_table)
+    
+    #plotting
+    plot(x_axis, as.vector(plot_table), type = 'l', xlab = "Rank of Word-Count",
+         ylab = "Word-Count", main = "Plot of Word counts and their ranks",
+         lwd = 1.5)
+  }
+  #Sorting if sorting is true
+  if(sort == TRUE) {
+    return(sort(table, decreasing = TRUE))
+  }
+  #Returning table of the cleaned words
+  return(table)
+}
+
+#Calling function
+result_table = create_word_table("clinton.txt", sort = TRUE, plot = TRUE)
+
+#Frist 20 and last 10 elements
+head(result_table, 20)
+
+tail(result_table, 10)
+```
+
+
+
+

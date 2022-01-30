@@ -1,0 +1,193 @@
+---
+title: 'Lab 1: R Basics'
+author: "Computation for Data Analysis"
+date: "Due Monday, 23 March 2020"
+output:
+  html_document:
+    toc: yes
+    toc_depth: 3
+    toc_float: yes
+  pdf_document:
+    toc: yes
+    toc_depth: '3'
+---
+
+```{r, include=FALSE}
+knitr::opts_chunk$set(cache=TRUE, autodep=TRUE, cache.comments=FALSE)
+```
+
+Name:  Vishal Vaidhyanathan
+
+Andrew ID:   vvaidhya
+
+Collaborated with:  
+
+This lab is to be done in class (completed outside of class if need be). You can collaborate with your classmates, but you must identify their names above, and you must submit **your own** lab as a knitted HTML file on Canvas, by next Monday 11:59pm.
+
+```{r ECHO=FALSE}
+## For reproducibility --- don't change seed value provided!
+set.seed(15106)
+```
+
+**This week's agenda**: 
+
+* Install R and R Studio
+* Knit the lab and install any needed libraries
+* Basic R such numerical calculations, logic, use NA
+* Knit your complete lab and submit the resulting .html file
+
+
+After each question, you will see the following:
+```{r}
+# FILL ME IN
+```
+This, in <tt>R Markdown</tt> parlance, is a "code chunk." To answer the question, replace this comment with your answer. Note that anything following a "#" symbol is a comment (or is code that is "commented out"). Also note that you do not need to remove the question or make other edits. Just fill in the code chunks.
+
+To run the chunk to see if it works, simply put your cursor *inside* the chunk and, e.g., select "Run Current Chunk" from the "Run" pulldown tab. Alternately, you can click on the green arrow at the upper right-most part of the chunk, or use "\<cntl\> + \<shift\> + \<return\>" as a keyboard shortcut.
+
+Here is an example (see the Rmd file):
+
+## Example
+
+Print "Hello, world."
+```{r}
+print("Hello, world.")
+```
+
+For some questions, you will also be prompted for, e.g., written explanations. For these, in addition to a code chunk, you will also see the following:
+```
+FILL ME IN
+```
+Note how there is no "{r}" following the tick marks in the first line. This is a verbatim block; any text you write in this block appears in the same way as in the block when you knit your file.
+
+When you have finished answering the questions, click on the "Knit" button underneath the file name at the top. This will output an HTML file; if you cannot find that file, go to the console and type <tt>getwd()</tt> (i.e., "get working directory")...you may find that your working directory and the directory in which you've placed the Rmd file are not the same. The HTML file should be in the working directory. To correct the working directory, click "Session" at the top of RStudio, then click "Set Working Directory"->"To Source Files Location". You can then knit again and the file should be in the correct location.
+
+<tt>R Markdown</tt> may prompt you to install packages to get the knitting to work; do install these.
+
+Numerical calculations
+===
+
+If you hover your mouse for a moment between two dollar ($) signs below, a formatted equation should appear. The knitted .html file will also show the formatted equation. (These equations are using a version of Latex typesetting package.)
+
+Perform the calculations in R below.
+
+**1a.** $5 + \frac{3-1}{5}$
+```{r}
+5 + ((3-1)/5)
+```
+
+**1b.** $\large\frac{4^2 - 3}{\sqrt{89}}$
+```{r}
+(4^2 - 3)/(89^0.5)
+```
+
+**1c.** $e^3$ where $e$ is Euler's number. Hint help.search("logarithms and exponentials")
+```{r}
+exp(3)
+```
+
+**1d.** $\log_e{0.3}$
+
+```{r}
+log(0.3)
+```
+
+R basics
+===
+
+**2a.**
+Determine the type of the expression in 1d. Then convert it to a string.
+
+```{r}
+typeof(log(0.3))
+as.character(log(0.3))
+```
+
+**2b.**
+Assign a variable `month` to 11 and then write an expression to determine if `month` has the value 10 or 11. Next check if the month is not the first 3 months of the year nor the last 3 months of the year. Write the check two different ways. 
+
+```{r}
+month <- 11
+month == 10 | 11
+month == !((1 | 2 | 3) & (10 | 11 | 12))
+month == !(1 | 2 | 3) | !(10 | 11 | 12)
+```
+
+**2c.**
+Often a data set may have missing  or unknown values and any missing data have the value `NA` ("not available").  Most operations on unknown values will also be unknown. Assign two variables x and y the value `NA`.  Add 5 to x, determine if x  greater than or equal to 5, and determine if x is equal to NA using the equality operator. Consider whether the result of last case make sense.  For context, determine if x is equal to y. Explain why there may be situations where it makes sense that `R` should return that result for x and y. (Hint: Consider when x and y are the birth month of two persons.)  Now, use `is.na()` to determine if x is a missing value.
+
+```{r}
+x <- NA
+y <- NA
+x = x + 5
+x >= 5
+x == NA
+x == y
+is.na(x)
+```
+```
+As the question hints, if the two variables are birth months, and for some reason they aren't available, then it doesnt mean they are the same months. This doesnt assure equality. However, if we check if it is empty, it would return true. doesnt mean two empty variables are equal.
+```
+
+**2d.**
+Using `x` from the previous question, compute x raised to the power 0, x or TRUE, FALSE and x, and x times 0. Explain why the results make sense.
+
+```{r}
+x^0
+x | TRUE
+FALSE & x
+x*0
+```
+```
+x^0 gives 1 as anything irrespective of the value, results in 1. The OR condition returns true as only one true condition is required for an OR conditional to return true. For AND conditional, both must be true and hence the above AND expression returns false. Multiplication on a NA object will still be NA object. Any basic arithmetic on an empty object will remain empty.
+```
+
+**2e.**
+Display the largest integer that `R` allows.  Integers in `R` use 32 bits. Half of the integers are negative and the other half are non-negative.  You will need to cast the number to an `integer`, otherwise it will be a `double`, which can be much larger and still display in an integer format (no decimal point). Demonstrate that this integer is the largest one allowed by adding 1 to it. Hint: Use an expression that includes a power of 2.
+
+```{r}
+max = 2^31 - 1
+as.integer(max)
+as.integer(max + 1)
+```
+
+The binomial distribution
+===
+
+```{r, include=FALSE}
+# Fix the seed so random results are the same each time time you knit
+set.seed(15106)
+```
+
+The binomial distribution $\mathrm{Bin}(m,p)$ is defined as of the number of successes in $m$ independent trials, where each trial has the probability $p$ of success. For example, the binomial distribution gives the probability of getting exactly $x$ heads after $m$ flips of a coin, where the coin is weighted to have probabily $p$ of landing on heads. 
+
+The R function `rbinom()` generates random variables with a binomial distribution. E.g., 
+
+```{r, eval=FALSE}
+rbinom(n=20, size=10, prob=0.5)
+```
+
+produces 20 observations from $\mathrm{Bin}(10,0.5)$.
+
+- **3a.** Generate 200 random values from the $\mathrm{Bin}(8,0.5)$ distribution, and store them in a vector called `bin.draws.200`. 
+
+```{r}
+rbinom(n=200, size=8, prob=0.5)
+bin.draws.200 <- rbinom(n=200, size=8, prob=0.5)
+```
+ 
+- **3b.** Use `mean()` and `sd()` to find the mean and standard deviation of `bin.draws.200`. The expected mean is $m \cdot p$ and the expected standard deviation is $\sqrt{m}\times p$. Calculate the expected mean and standard deviation using these formulas. Are the observed means and standard deviations close to what you'd expect?
+```{r}
+mean(bin.draws.200) #Observed Mean
+sd(bin.draws.200) #Observed SD
+8*0.5 #Expected Mean
+(8^0.5)*0.5 #Expected SD
+```
+```
+Yes, they are pretty close to each other. (Slight variations might've occured due to internal approximations?).
+```
+
+- **3c.** Call `summary()` on `bin.draws.200` and describe the result.
+```{r}
+summary(bin.draws.200)
+```

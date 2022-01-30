@@ -1,0 +1,25 @@
+unnamed-chunk-2	<	if	print
+unnamed-chunk-3	<	if	print
+unnamed-chunk-4	<	ifelse
+unnamed-chunk-5	==	ifelse	print
+unnamed-chunk-6	<	>	if	print
+unnamed-chunk-7	==	if	print	sample
+unnamed-chunk-8	[[<-	c	list	print
+unnamed-chunk-9	c	names<-	print
+unnamed-chunk-10	[<-	names	names<-	print
+unnamed-chunk-11	[[<-	$<-	c	print
+unnamed-chunk-12	[[	$	c	letters	list	rnorm	sample
+unnamed-chunk-13	unlist
+unnamed-chunk-14	[[	$	attributes	matrix
+unnamed-chunk-15	[[<-	attributes	attributes<-	date
+unnamed-chunk-16	attributes	attributes<-
+unnamed-chunk-17	as.matrix	read.table
+unnamed-chunk-18	dim	print	pros.dat
+unnamed-chunk-19	head	pros.dat	tail
+unnamed-chunk-20	==	ifelse	pros.dat	sum
+unnamed-chunk-21	!	dim	has.svi	pros.dat
+unnamed-chunk-22	colMeans	pros.dat.no.svi	pros.dat.svi
+unnamed-chunk-23	[<-	for	ncol	pros.dat	pros.dat.no.svi	pros.dat.svi	sd	vector
+unnamed-chunk-24	[<-	for	ncol	pros.dat	pros.dat.no.svi	pros.dat.svi	sd
+unnamed-chunk-25	pros.dat.no.svi.sd	pros.dat.svi.sd
+unnamed-chunk-26	all.equal	apply	pros.dat.no.svi	pros.dat.no.svi.sd	pros.dat.svi	pros.dat.svi.sd	sd

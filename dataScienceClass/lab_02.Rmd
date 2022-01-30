@@ -1,0 +1,397 @@
+---
+title: 'Lab 2: Vectors, Matrices, and More'
+author: "Computation for Data Analysis"
+date: "Due Monday 30 March 2020"
+output:
+  html_document
+---
+
+```{r, include=FALSE}
+knitr::opts_chunk$set(cache=TRUE, autodep=TRUE, cache.comments=FALSE)
+```
+
+Name:  Vishal Vaidhyanathan
+Andrew ID:  vvaidhya
+Collaborated with:  none
+
+This lab is to be done in class (completed outside of class if need be). You can collaborate with your classmates, but you must identify their names above, and you must submit **your own** lab as an knitted HTML file on Canvas, by Monday 11:59pm, this week.
+
+**This week's agenda**: 
+
+ * Manipulating vectors
+ * Using matrices 
+ * Using built-in functions
+ * Making basic plots
+
+ 
+ Creating Vectors
+===
+
+- **1a.** Initialize a vector `x.vec` with one numerical value, one character value, and one logical value.  What is the type of `x`?  Explain what R did. (Hint: What restriction do vectors have with respect to their data?)
+
+```{r}
+x.vec <- c(6,'a',FALSE)
+typeof(x.vec)
+```
+```
+Since vectors need to have the same datatype, it corced the data to the highest type. So it shows character.
+```
+- **1b.** Create a vector `y.vec` of integers staring with value 3 and ending with value -2, stepping down by 1. Do this *three* different ways.  After each command, print the vector.
+
+```{r}
+y.vec <- c(3,2,1,0,-1,-2)
+print(y.vec)
+y.vec <- seq(3,-2,by=-1)
+print(y.vec)
+y.vec <- seq(3,-2,length=6)
+print(y.vec)
+```
+
+- **1c.** Using one command, print out the 3nd, 4th, 2st, and 5th elements of `y.vec` (in that order).
+
+```{r}
+print(y.vec[c(3,4,2,5)])
+```
+- **1d.** Using one command, determine the index(position) of the value `0` in `y.vec`
+
+```{r}
+print(which(y.vec == 0))
+```
+- **1e.** Create the following vector `z.vec` without the use of the `c()` function:
+   1 3 5 7 1 3 5 7
+
+```{r}
+z.vec <- rep(seq(1,7,by=2),2)
+```
+
+- **1f.**  Use `append()` to two vectors defined below. Next use `rev()` to merge such that the output is 1, 2, 8, 7, 6, 5, 3, 4.
+```{r}
+a = 1:4
+b = 5:8
+append(a,rev(b),after=2)
+```
+
+- **1g.** Define two numerical vectors: `short` that contains the values 1 through 3 and `long` that contains the values 2 through 6.  Note that when you multiply the two vectors, `R` gives a warning. Now use `suppressWarnings()` and repeat the multiplication.   State explicitly what multiplications are being done (e.g. 1*2, ...)? 
+```{r}
+short <- 1:3
+long <- 2:6
+suppressWarnings(short * long)
+```
+```
+It does recycling : 1*2, 2*3, 3*4, 1*5, 2*6 are the multiplications that are done
+```
+
+
+The Normal Distribution
+===
+
+The normal distribution $\mathcal{N}(\mu, \sigma^2)$ has a mean $\mu$ and variance $\sigma^2$.  The R function `rnorm()` generates random variables with a normal distribution. For example, 
+
+```{r, eval=FALSE}
+rnorm(n=20, mean=0, sd=2)
+```
+
+produces 20 observations from $\mathcal{N}(0, 4)$. **Careful**: $\mathcal{N}(\mu, \sigma^2)$ specifies the variance and `rnorm()` uses the standard deviation.
+
+```{r, include=FALSE}
+# Fix the seed so random results are consistent
+set.seed(15106)
+```
+
+- **2a.** Generate 60 random values from  $\mathcal{N}(0, 2)$, and store them in a vector called `norm.draws`. Display the first 10 elements. Display all but the first 10 elements in two different ways.
+
+```{r}
+norm.draws <- rnorm(n=60, mean=0, sd=2^0.5)
+print(norm.draws[1:10])
+print(norm.draws[-c(1:10)])
+print(norm.draws[11:60])
+```
+- **2b.** Compute the mean, standard deviation, and variance (use `var()` for the variance) of the values in `norm.draws`. Are they what you would expect?
+
+```{r}
+mean(norm.draws)
+sd(norm.draws)
+var(norm.draws)
+```
+```
+They are slightly off compared to the expected values of 0, 1.414 and 2. This can be due to the inherent roundoffs based on memory usage and data type.
+```
+
+- **2c.** Display the elements that are less than or equal to `-1` along with the elements that are greater than or equal to `3`.
+```{r}
+norm.draws[(norm.draws <= -1) | (norm.draws >= 3)]
+```
+
+- **2d.** What proportion of values in `norm.draws` are greater than or equal to `1.5`? Do this in two ways:
+1. Find the proportion using only `length()` and logical subsetting.
+2. Compute it using `sum()` and `length()`.  
+Note which is simpler.
+```{r}
+length(norm.draws[norm.draws >= 1.5])/length(norm.draws)
+sum(norm.draws >= 1.5)/length(norm.draws)
+```
+```
+the second method is simpler by using sum() method.
+```
+
+- **2e.** Determine whether any of the values in `norm.draws` is less than or equal to `-1`. If the result is `TRUE` show the indices. Do the same for `-2`. What does the result for `-2` mean?
+
+```{r}
+any(norm.draws <= -1)
+which(norm.draws <= -1)
+any(norm.draws <= -2)
+which(norm.draws <= -2)
+```
+```
+The results show all indices that are less than or equal to -2. It means that it is a subset of the first expression (less than or equal to -1). 
+```
+
+- **2f.** Sort all the values of `norm.draw` in <i>decreasing</i> order. Do this two different ways.
+
+```{r}
+sort(norm.draws, decreasing = TRUE)
+norm.draws[order(norm.draws, decreasing = TRUE)]
+```
+
+- **2g.** Next, replace all the values in `norm.draws` that are $\geq 3$ with `NA` and try to compute the mean and standard deviation. To ignore missing values add the argument `na.rm = TRUE` and compute the mean and standard deviation again.
+
+```{r}
+norm.draws <- replace(norm.draws, which(norm.draws >= 3), NA)
+mean(norm.draws, na.rm = TRUE)
+sd(norm.draws, na.rm = TRUE)
+```
+
+- **2h.** Now call `summary()` on `norm.draws`.  How many values are missing?
+
+```{r}
+summary(norm.draws)
+```
+```
+There are 2 values mnissing. 2 NA's as shown in the summary.
+```
+
+Using  matrices
+===
+
+- **3a.** Use recycling to define a 4 x 3 matrix where the first three rows are all zero and the fourth row contains the first three multiples of 4 (i.e., 4, 8, 12). You can do this in a single line.
+```{r}
+matrix(c(0,0,0,4),nrow = 4,ncol = 3)*c(1,2,3)
+```
+
+- **3b.** Define a variable `x.vec` to contain the integers 1 through 100. Check that it has length 100. Report the data type being stored in `x.vec`. Add up the numbers in `x.vec`, by calling a built-in R function. How many arithmetic operations did this take?  Verify `R` added up the numbers correctly by using the formula $1 + 2 + 3 + \cdots + n = n(n+1)/2$. How many arithmetic operations does the formula take?
+```{r}
+x.vec <- 1:100
+length(x.vec)
+typeof(x.vec)
+sum(x.vec)
+((length(x.vec))*(length(x.vec)+1))/2
+```
+```
+Using the sum takes 100 "add" arithmetic operations. Whereas, the formula uses just 2 arithmetic operations.
+```
+
+- **3c.** Convert `x.vec` into a matrix with 20 rows and 5 columns, and store this as `x.mat`. Here `x.mat` should be filled out in the default order (column major order). Check the dimensions of `x.mat`, and the data type as well. Compute the sums of each of the 20 rows of `x.mat`, by calling a built-in R function. Check (using a comparison operator) that the sum of row sums of `x.mat` equals the sum of `x.vec`.
+
+```{r}
+x.mat = matrix(x.vec,nrow = 20,ncol = 5)
+dim(x.mat)
+typeof(x.mat)
+rowSums(x.mat)
+sum(rowSums(x.mat)) == sum(x.vec)
+```
+
+
+- **3d.** Extract and display rows 1, 6, and 12 of `x.mat`, with a single line of code. Answer the following questions, each with a single line of code: how many elements in row 2 of `x.mat` are at most 40? How many elements in column 3 are in between (and not including) 45 and 50? How many elements in column 5 are even? Hint: Recall the modulus operator %%.
+
+```{r}
+x.mat[c(1,6,12),]
+sum(x.mat[2,] <= 40)
+sum((x.mat[,3]>45)&(x.mat[,3]<50))
+sum(x.mat[,5]%%2 == 0)
+```
+
+
+- **3e.** Using logical indexing, in a single line of code modify `x.vec` so that every odd number in this vector is incremented by 10, and every even number is left alone. Assume the odd numbers can be at any index in the array. 
+Display the result to the console. 
+
+```{r}
+x.vec[!(x.vec%%2 == 0)] = x.vec[!(x.vec%%2 == 0)]+10
+print(x.vec)
+```
+
+- **3f.** Modify the `x.mat` so that the order of the entries in the second column are decreasing instead of increasing, in just one line of code.  Don't use `sort()` as that would be inefficient.  Display the matrix.
+```{r}
+x.mat[,2] = rev(x.mat[,2])
+print(x.mat)
+```
+
+More binomials
+===
+```{r include=FALSE}
+## For reproducibility --- don't change seed provided!
+set.seed(15106)
+```
+- **4a.** As in Lab 1, you will generate 200 draws from a binomial distribution with 8 trials, but this time with the probability of success of: 0.2, 0.3, 0.4, 0. 5, 0.6, 0.7, and 0.8, storing the results in vectors called `bin.draws.0.2`, `bin.draws.0.3`, `bin.draws.0.4.`, `bin.draws.0.5`, `bin.draws.0.6`, `bin.draws.0.7` and  `bin.draws.0.8`. 
+
+```{r}
+# For reproducibility - DON'T TOUCH THIS LINE
+set.seed(15106)
+
+bin.draws.0.2 <- rbinom(n=200, size=8, prob=0.2)
+bin.draws.0.3 <- rbinom(n=200, size=8, prob=0.3)
+bin.draws.0.4 <- rbinom(n=200, size=8, prob=0.4)
+bin.draws.0.5 <- rbinom(n=200, size=8, prob=0.5)
+bin.draws.0.6 <- rbinom(n=200, size=8, prob=0.6)
+bin.draws.0.7 <- rbinom(n=200, size=8, prob=0.7)
+bin.draws.0.8 <- rbinom(n=200, size=8, prob=0.8)
+```
+
+
+- **4b.** Create a vector `bin.draws.0.5.half` that contains the elements of `bin.draws.0.5` at even indexes(i.e. 0, 2, 4, etc.).  Do it two ways in one line:
+1. Use a vector of indexes
+2. Use a vector of logical values.  
+
+Hint: For the second case, you can use a vector of length two and R's recycling. Display the results after each statement.  Check the results are the same and lengths are 100. 
+
+```{r}
+bin.draws.0.5.half <- bin.draws.0.5[seq(2,200,by=2)]
+print(bin.draws.0.5.half)
+length(bin.draws.0.5.half)
+bin.draws.0.5.half <- bin.draws.0.5[c(FALSE,TRUE)]
+print(bin.draws.0.5.half)
+length(bin.draws.0.5.half)
+```
+
+- **4c.** Print the indices of the elements of `bin.draws.0.5` that are equal to 4. How many such elements are there? **Challenge**: theoretically, how many such elements would you expect there to be?  
+
+```{r}
+print(which(bin.draws.0.5 == 4))
+sum(bin.draws.0.5 == 4)
+```
+```
+There are 59 elements. With the probability being half, the distribution is symmetric around the mean, peaking at 4. Which means it will be around 20-25% of the entire number of samples(200 in this case).
+```
+- **4d.** Print the indices of the elements of `bin.draws.0.5.half` that are equal to 4. How many such elements are there? **Challenge**: theoretically, how many such elements would you expect there to be? 
+
+
+```{r}
+print(which(bin.draws.0.5.half == 4))
+sum(bin.draws.0.5.half == 4)
+```
+```
+Since this is also a distribution which is symmetric about the mean, which is almost 4, it has to be 20-25% of the total length of the sample set(100 in this case). 
+```
+- **4e.** Use `mean()` and `sd()` to find the mean and standard deviation of bin.draws.0.5 and bin.draws.0.5.half.  The expected mean is $m \cdot p$ and the expected standard deviation is $\sqrt{m}\times p$. Calculate the expected mean and standard deviation using these formulas. Are the observed means and standard deviations close to what you'd expect?
+```{r}
+mean(bin.draws.0.5) #Observed Mean
+sd(bin.draws.0.5) #Observed SD
+8*0.5 #Expected Mean
+(8^0.5)*0.5 #Expected SD
+mean(bin.draws.0.5.half) #Observed Mean
+sd(bin.draws.0.5.half) #Observed SD
+8*0.5 #Expected Mean
+(8^0.5)*0.5 #Expected SD
+```
+```
+Yes, they are pretty close to each other. (Slight variations might've occured due to internal approximations?). Also, lesser the number of samples, more closer the observed values are to the expected values.
+``` 
+
+- **4f.** Now, let's compare the properties of our vectors. Create a vector `mean.vec` of length 7, whose entries are the means of the 7 vectors your created, in order according to the success probabilities (0.2 through 0.8).  Create another vector `sd.vec` of length 7, whose entries are the standard deviations of the 7 vectors in the same order.  Display the results of both.
+
+```{r}
+mean.vec <- c(mean(bin.draws.0.2),mean(bin.draws.0.3),mean(bin.draws.0.4),mean(bin.draws.0.5),mean(bin.draws.0.6),mean(bin.draws.0.7),mean(bin.draws.0.8))
+sd.vec <- c(sd(bin.draws.0.2),sd(bin.draws.0.3),sd(bin.draws.0.4),sd(bin.draws.0.5),sd(bin.draws.0.6),sd(bin.draws.0.7),sd(bin.draws.0.8))
+print(mean.vec)
+print(sd.vec)
+```
+
+    
+- **4g.** The function `plot()` is a generic function in R for the visual display of data. `plot()` with two arguments creates a scatterplot with the first argument (on the x-axis) versus second argument (on the y-axis). Using the vectors from the last part, create the following scatterplots. Explain in words, for each, what's going on.
+    * The 7 means (y-axis) versus the 7 probabilities (x-axis) used to generate the draws.
+    * The standard deviations versus the probabilities.
+    * The standard deviations versus the means.  
+    
+```{r}
+plot(seq(0.2,0.8,by=0.1),mean.vec)
+plot(seq(0.2,0.8,by=0.1),sd.vec)
+plot(mean.vec,sd.vec)
+```
+```
+1. In the first plot, we can see that the mean increases with the increase in probablity of the event, which shows that the distribution is more skewed to the right.
+2. Distibution shows a clustered distribution within the 1.3 to 1.5 range. SD approximately increases upto 0.5 and then decreases.
+3. The mean also shows a similar distribution with SD as shown by the probabilities with the SD.
+```
+   **Challenge** (not for credit): for each plot, use `lines()` to add a curve that corresponds to the relationships you'd expect to see in the theoretical population (i.e., with an infinite amount of draws, rather than just 200 draws). Recall the expected mean is $mp$ and expected standard deviation is $\sqrt{mp(1-p)}$.
+
+Switching to matrices
+===
+
+- **5a.** Create a matrix of dimension 200 x 7, called `bin.matrix`, whose columns contain the 7 vectors you created, in order of the success probabilities of their underlying binomial distributions (0.2 through 0.8). Hint: use `cbind()`. 
+
+```{r}
+bin.matrix <- cbind(bin.draws.0.2,bin.draws.0.3,bin.draws.0.4,bin.draws.0.5,bin.draws.0.6,bin.draws.0.7,bin.draws.0.8)
+```
+
+
+- **5b.** Print the first three rows of `bin.matrix`. Notice that the matrix has column names corresponding to the variable names you used in `cbind()` in the previous question.  Print the element in the 23th row and 2nd column. Repeat using the column name. Compute the largest element in first column. Compute the largest element in all but the first column.
+
+```{r}
+print(bin.matrix[1:3,])
+print(bin.matrix[23,2])
+print(bin.matrix[23,"bin.draws.0.3"])
+max(bin.matrix[,1])
+max(bin.matrix[,-1])
+```
+
+
+- **5c.** Calculate the column means of `bin.matrix` by using just a single function call.  Note the names on the resulting vector.  Display the vector without the names using `as.vector()`   
+
+```{r}
+colMeans(bin.matrix)
+as.vector(colMeans(bin.matrix))
+```
+
+- **5d.** Compare the means you computed in the last question to those you computed in Q4e, in three ways. First, using `==`, and second, using `identical()`, the third, using `identical()` but without the vector names. What do the three ways report? Are the results compatible? Explain.
+
+```{r}
+colMeans(bin.matrix)[4] == mean(bin.draws.0.5)
+identical(colMeans(bin.matrix)[4],mean(bin.draws.0.5))
+identical(as.vector(colMeans(bin.matrix))[4],mean(bin.draws.0.5))
+```
+```
+The results make sense because the equality checks for the value, whereas the identical checks for identity match. In the case of column names, they weren't identical.
+```
+
+- **5e.** Use `t()` to take the transpose of `bin.matrix` and then take row means. Are these the same as what you just computed? Should they be?
+```{r}
+bin.matrix = t(bin.matrix)
+rowMeans(bin.matrix)
+```
+```
+Yes they are exactly samne as it makes sense that the same values that were there in the columns are now in the rows.
+```
+
+
+Let's go big 
+===
+
+- **6a.** R's capacity for data storage and computation is very large compared to what was available 10 years ago. Generate 2 million numbers from $\mathrm{Bin}(1 \times 10^6, 0.5)$ distribution and store them in a vector called `big.bin.draws`. Calculate the mean and standard deviation of this vector.
+
+```{r}
+#For reproducibility - DO NOT TOUCH THIS
+set.seed(15106)
+
+big.bin.draws <- rbinom(n=2*10^6, size=10^6, prob=0.5)
+mean(big.bin.draws)
+sd(big.bin.draws)
+```
+
+
+- **6b.** The function `hist()` specifically produces a histogram display. Use `hist()` to produce a histogram of `big.bin.draws`. To increase the number of histogram bars, set the `breaks=100` in the `hist()` function. What does the shape of this histogram appear to be?
+
+```{r}
+hist(big.bin.draws,breaks = 100)
+```
+```
+This appears to be a bell curve, a symmetric binomial distribution that is symmetric about the mean(500000).
+```

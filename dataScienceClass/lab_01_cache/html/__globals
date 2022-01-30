@@ -1,0 +1,17 @@
+unnamed-chunk-2	set.seed
+unnamed-chunk-3	
+unnamed-chunk-4	print
+unnamed-chunk-5	
+unnamed-chunk-6	^
+unnamed-chunk-7	exp
+unnamed-chunk-8	log
+unnamed-chunk-9	as.character	log	typeof
+unnamed-chunk-10	!	&	==	|
+unnamed-chunk-11	==	>=	is.na
+unnamed-chunk-12	&	^	|	x
+unnamed-chunk-13	^	as.integer
+unnamed-chunk-14	set.seed
+unnamed-chunk-15	rbinom
+unnamed-chunk-16	rbinom
+unnamed-chunk-17	^	bin.draws.200	mean	sd
+unnamed-chunk-18	bin.draws.200	summary

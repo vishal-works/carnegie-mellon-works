@@ -1,0 +1,315 @@
+---
+title: 'Lab 5: Data Frames and Apply'
+author: "Computation for Data Analysis"
+date: "Due Monday 20 April 2020"
+output:
+  html_document
+---
+
+```{r, include=FALSE}
+knitr::opts_chunk$set(cache=TRUE, autodep=TRUE, cache.comments=FALSE)
+```
+
+Name:  Vishal Vaidhyanathan
+Andrew ID:  vvaidhya
+Collaborated with:  None
+
+This lab is to be done in class (completed outside of class if need be). You can collaborate with your classmates, but you must identify their names above, and you must submit **your own** lab as an knitted HTML file on Canvas, by Monday 11:59pm.
+
+**This week's agenda**: 
+
+ * another function
+ * data frames
+ * apply() functions
+ 
+<span style="color:blue">**IMPORTANT:**</span> For full points, be sure that you follow the style guide at the end of lecture 7.  Note that in RStudio there is a vertical line on the left hand side of the editor.  Do not let your code chunks go to the right of that line which marks the 80 character boundary.  If you do not see the vertical line go to Tools -> Global Options -> Code -> Display.  Then tick "Show margin" and set "Margin column" to 80.
+
+Also, be sure to **indent your functions correctly** before you submit your knitted file.  In Windows use <tt>Ctrl-I</tt> and on a Mac use <tt>Command-I</tt> to get R to indent for you the code you select.
+
+
+## Truncated normal
+
+The truncate normal distribution is derived from a normal distribution that is bounded above or below or both. You will develop a function in stages that returns a random sample of size $n$ from a truncated normal distribution. 
+
+For each part, copy your answer from the previous part and then add the additional R code needed to answer that part. Use vectorization until you get to part 1d. where you will need one `while()` loop; don't use a `for()` loop.
+
+**1a.** Write a function `rstdnorm.trunc()` that has three inputs: `n` the sample size, `lo` the lower bound, and `hi` the upper bound. Use the function `rnorm()` to get a sample of size $n$ drawn from $N(0, 1)$. The function returns only those values in the sample that are between `lo` and `hi`, inclusive.  For full credit, write comments that give the purpose of your function and that specify the inputs and output. Call your function a few times with several different values for `lo` and `hi` to check the results make sense.  Show the results for one such run with <tt>n=30</tt> that demonstrates the data is being bounded by at least one bound.
+
+```{r}
+#rstdnorm.trunc()
+# Returns a truncated normal distribution.
+# Parametrs : n - number of samples, lo - lower bound, hi - upper bound
+# Returns : Truncated Distribution as vector.
+rstdnorm.trunc <- function(n,lo,hi) {
+  x <- rnorm(n)
+  x <- x[x > lo & x < hi]
+  return(x)
+}
+#Testing with [0,1]
+rstdnorm.trunc(30,0,1) #Correct!
+#Testing with [0.5,1]
+rstdnorm.trunc(30,0.5,1) #Correct!
+#Testing with [0.5,0.7]
+rstdnorm.trunc(30,0.5,0.7) #Correct!
+#Testing with [0.5,1]
+rstdnorm.trunc(30,0.5,0.5) #Correct! getting null vector
+```
+
+**1b.** Modify your function so that it has reasonable default values for `lo` and `hi`. Don't forget to include the default values in your comments. Again, call your function using the default values a few times to check the results make sense.  Show your results for one such run.
+
+```{r}
+#rstdnorm.trunc()
+# Returns a truncated normal distribution.
+# Parametrs : n - number of samples, lo - lower bound (default = 0), 
+#                                    hi - upper bound (default = 1)
+# Returns : Truncated Distribution as vector.
+rstdnorm.trunc <- function(n,lo = 0,hi = 1) {
+  x <- rnorm(n)
+  x <- x[x > lo & x < hi]
+  return(x)
+}
+
+#Testing for n=10 with default interval
+rstdnorm.trunc(10)
+#Testing for n=20 with default interval
+rstdnorm.trunc(20)
+#Testing for n=30 with default interval
+rstdnorm.trunc(30)
+
+#Testing with [0,1]
+rstdnorm.trunc(30,0,1) #Correct! getting 30 values
+#Testing with [0.5,1]
+rstdnorm.trunc(30,0.5,1) #Correct!
+#Testing with [0.5,0.7]
+rstdnorm.trunc(30,0.5,0.7) #Correct!
+#Testing with [0.5,1]
+rstdnorm.trunc(30,0.5,0.5) #Correct! getting null vector
+```
+
+**1c.** The function you wrote likely would not return a sample of size $n$. The probability of a value being less than `lo` can be determined by `pnorm(lo)`. The probability of a value being greater than `hi` is `1 - pnorm(hi)`.  The sum of the two is the probability of a value being outside the range of the truncated normal, call it $p$.  The expected number of values that your function above will drop would be $np$.  Modify your function above so that it includes an addition $np$ values when it sample from `rnorm()`. After you eliminated values that are out of the bounds, you now might have more than $n$ values.  Return the first $n$ values. Call your fuction several times to see if you are getting $n$ or fewer values.  Again, show one such example.
+
+```{r}
+#rstdnorm.trunc()
+# Returns a truncated normal distribution of size n..
+# Parametrs : n - number of samples, lo - lower bound (default = 0), 
+#                                    hi - upper bound (default = 1)
+# Returns : Truncated Distribution as vector of size n.
+rstdnorm.trunc <- function(n,lo = 0,hi = 1) {
+  p <- pnorm(lo) + 1 - pnorm(hi)
+  np <- p*n #To get the total number of values outside the range 
+  x <- rnorm(n)
+  x <- x[x > lo & x < hi]
+  return(x[1:n])
+}
+
+#Testing for n=10 with default interval
+rstdnorm.trunc(10)
+#Testing for n=20 with default interval
+rstdnorm.trunc(20)
+#Testing for n=30 with default interval
+rstdnorm.trunc(30)
+```
+
+**1d.** Unfortunately, if you are unlucky, you may still not have $n$ values in the truncated normal sample.  Add a loop that keeps getting $np$ more values to add to the sample, until there are at least $n$ truncated normal values.  Return the first $n$ of these values should you have more.  This time, you should always get exactly $n$ values in your sample. Show an example
+```{r}
+#rstdnorm.trunc()
+# Returns a truncated normal distribution of size n..
+# Parametrs : n - number of samples, lo - lower bound (default = 0), 
+#                                    hi - upper bound (default = 1)
+# Returns : Truncated Distribution as vector of size n.
+rstdnorm.trunc <- function(n,lo = 0,hi = 1) {
+  p <- pnorm(lo) + 1 - pnorm(hi)
+  np <- p*n #To get the total number of values outside the range
+  s <- n + np
+  x <- rnorm(s)
+  x <- x[x > lo & x < hi]
+  while(length(x) < n) {
+    s <- s + np #adding np more values to sample until length(x) >= 30
+    x <- rnorm(s)
+    x <- x[x > lo & x < hi]
+  }
+  return(x[1:n])
+}
+
+#Testing for n=10 with default interval
+rstdnorm.trunc(10)
+#Testing for n=20 with [-1,1] interval
+rstdnorm.trunc(20, -1, 1)
+#Testing for n=30 with default interval
+rstdnorm.trunc(30)
+```
+
+**1e.** Finally, add an optional input named `hist` to `rstdnorm.trunc()` with a default value `FALSE`.  If `hist` is true, plot a histogram of the $n$ truncated standard normal values. Update your comments for this new input. Call your function with several different inputs and check if the histogram looks reasonable when `hist=TRUE`. Demonstate your updated function with a histogram using $n=200$, but do not show the sample returned; assign the returned sample to a variable.
+
+
+```{r}
+#rstdnorm.trunc()
+# Returns a truncated normal distribution of size n and draws histogram.
+# Parametrs : n - number of samples, lo - lower bound (default = 0), 
+#                                    hi - upper bound (default = 1)
+#                                    hist - Y/N for histogram (default = FALSE)
+# Returns : Truncated Distribution as vector of size n.
+rstdnorm.trunc <- function(n,lo = 0,hi = 1,hist = FALSE) {
+  p <- pnorm(lo) + 1 - pnorm(hi)
+  np <- p*n #To get the total number of values outside the range
+  s <- n + np
+  x <- rnorm(s)
+  x <- x[x > lo & x < hi]
+  while(length(x) < n) {
+    s <- s + np #adding np more values to sample until length(x) >= 30
+    x <- rnorm(s)
+    x <- x[x > lo & x < hi]
+  }
+  truncated.distribution <- x[1:n]
+  if(hist == TRUE) hist(truncated.distribution)
+  return(truncated.distribution)
+}
+
+#Testing
+truncated <- rstdnorm.trunc(200,-1,1,hist = TRUE)
+```
+
+**1f.** Finally, write a new function `rnorm.trunc()` that also includes in its arguments `mean` and `sd` that are the mean and standard devation that your sample should have.  To simulate a random sample of size $n$, where each value $x$ is drawn from  $N(\mu, \sigma)$ conditioned on $\text{lo} \le x \le \text{hi}$, first call `rstdnorm()` with `lo` equal to `(lo-mean)/sd` and `hi` equal to `(hi-mean)/sd`.  Then, for each result `x`,  return `mean + sd*x`.  Don't us a loop; use vectorization. Document your function and check if the results appear correct for several different input values. Show one example where `hist=TRUE` for a sample of at least 200 values.  Be sure the histogram is a histogram of the truncated normal with the input mean and standard deviation.  This time show the first 30 values of the sample returned.
+```{r}
+#rnorm.trunc()
+# Returns a truncated normal distribution with a given mean and sd.
+# Parametrs : n - number of samples, lo - lower bound (default = 0), 
+#                                    hi - upper bound (default = 1)
+#                                    hist - Y/N for histogram (default = FALSE)
+#                                    mean - Mean (default = 0)
+#                                    sd - Standard Deviation (default = 1)
+# Returns : Truncated Distribution of size n with given mean and sd.
+rnorm.trunc <- function(n, lo = 0, hi = 1, hist = FALSE, mean = 0, sd = 1) {
+  x <- rstdnorm.trunc(n,(lo-mean)/sd,(hi-mean)/sd)
+  x <- mean + sd*x
+  if(hist == TRUE) hist(x)
+  return(x)
+}
+
+#Testing and returning first 30 values of sample
+m <- rnorm.trunc(200, -1, 1, hist = TRUE, mean = 0.5, sd = 0.3)
+m[1:30] #First 30 values
+mean(m) #mean
+sd(m) #sd
+```
+
+## Data Frames
+
+
+Below we construct a data frame, of 50 states x 10 variables. The first 8 variables are numeric and the last 2 are factors. The numeric variables here come from the built-in `state.x77` matrix, which records various demographic factors on 50 US states, measured in the 1970s. You can learn more about this state data set by typing `?state.x77` into your R console. 
+
+```{r}
+state.df = data.frame(state.x77, Region=state.region, Division=state.division)
+```
+
+
+**2a.** Add a column to `state.df`, containing the state abbreviations that are stored in the built-in vector `state.abb`. Name this column `Abbr`. You can do this in (at least) two ways: first by using a call to `data.frame()`, and second by directly assigning to the new named column. Display the first 3 rows and all 11 columns of the new `state.df`.
+
+```{r}
+state.df$Abbr <- state.abb
+state.df[1:3,]
+```
+
+
+**2b.** Remove the `Region` column from `state.df`. You can do this in (at least) two ways: by using negative indexing, or by directly setting the column by name to `NULL`. Display the first 3 rows and all 10 columns of `state.df`.
+
+```{r}
+state.df$Region <- NULL
+state.df[1:3,]
+```
+**2c.** Add two columns to `state.df`, containing the x and y coordinates (longitude and latitude, respectively) of the center of the states, that are stored in the (existing) list `state.center`. Hint: take a look at this list in the console to see what its elements are named. Name these two columns `Center.x` and `Center.y`. Display the first 3 rows and all 12 columns of `state.df`.
+
+```{r}
+state.df$Center.x <- state.center$x
+state.df$Center.y <- state.center$y
+state.df[1:3,]
+```
+
+
+**2d.** Make a new data frame that contains only those states whose latitude is greater than 40.0. Do this in two different ways: using manual indexing, and `subset()`. Check that they are equal to each other, using an appropriate function call.
+```{r}
+new.df.1 <- state.df[which(state.df$Center.y > 40),]
+new.df.2 <- subset(state.df, Center.y > 40)
+all.equal(new.df.1,new.df.2)
+```
+
+**2e.** Make a new data frame that contains only the states whose latitude is greater than 40.0 and whose murder rate is above 9%. Print this new data frame to the console. Use `which.max()` and `row.names()` to find the name of the state in this new data frame with the highest average life expectancy.
+```{r}
+new.df.3 <- state.df[which(state.df$Center.y > 40 & state.df$Murder > 9),]
+new.df.3
+row.names(new.df.3)[which.max(new.df.3$Life.Exp)]
+```
+
+##Apply##
+
+
+
+
+**3a.** Compute the mean for each column of the <tt>R</tt>'s matrix `state.x77` using both `apply()` *and* `colMeans()`. Test whether you get the same answer both ways. The `mean()` function can trim a fraction of the data from each end before computing the mean.  Recompute the column means trimming 2% of the data on each end by using the additional `trim` argument, when possible.
+```{r}
+apply(state.x77, MARGIN = 2, FUN = mean)
+colMeans(state.x77)
+#Yes, same answer both ways.
+
+#function for trimmed mean by 2%
+#parameters : vec - a vector
+#returns : A trimmed mean vector
+trimmed.mean <- function(vec) {
+  return(mean(vec,2/100))
+}
+apply(state.x77, MARGIN = 2, FUN = trimmed.mean)
+```
+**3b.**
+How does the `Income` variable in <tt>state.x77</tt> matrix correlate with the other variables? Write a function called `cor_v1_v2()` that takes two inputs: `v1`, a numeric vector; and `v2`, a numeric vector whose default value is `state.x77[,"Life Exp"]`. Its output should be the correlation of <tt>v1</tt> and <tt>v2</tt>, computed via the `cor()` function. Check that `cor_v1_v2(v1=state.x77[,"Income"])` gives you 0.3402553, and `cor_v1_v2(v1=state.x77[,"Life Exp"])` gives you 1.
+```{r}
+# cor_v1_v2()
+# parameters : v1 - Numeric Vector.
+#              v2 - Numeric Vector (default = state.x77[,"Life Exp"])
+# returns : Correlation of v1 and v2.
+cor_v1_v2 <- function(v1,v2 = state.x77[,"Life Exp"] ) {
+  return(cor(v1,v2))
+}
+
+#Testing
+cor_v1_v2(v1=state.x77[,"Income"])
+cor_v1_v2(v1=state.x77[,"Life Exp"])
+```
+**3c.**
+
+Using `apply()` and the function `cor_v1_v2()` that you defined in the last question, calculate the correlation between each one of the 8 variables in the <tt>state.x77</tt> matrix and the <tt>Life Exp</tt> variable. Display these correlations. Do any of them seem reasonably large, in absolute value (aside from the correlation of <tt>Life Exp</tt> with itself, which is trivially 1)? Does this surprise you?
+```{r}
+apply(state.x77, MARGIN = 2, FUN = cor_v1_v2)
+
+#calculating second highest correlation
+which.max(apply(state.x77, MARGIN = 2, FUN = cor_v1_v2)[-4])
+```
+```
+The HS grad is the next highest. It surprises, as it shows that HS grad
+correaltes with life expectancy.
+```
+**3d.**
+
+The usual measure of correlation is the Pearson's correlation, a measure of linear association. Spearman's rank correlation can be used when linearity cannot be assumed.  It is a measure of the strength and direction of a monotonic increasing or decreasing relationship.  You can compute Spearman's rank correlation using `cor()` by specifying the argument `method="spearman"`. (The default value is `method="pearson"`.) 
+
+Modify your function `cor_v1_v2()` so that it takes a third argument, `method`, whose default value is <tt>"pearson"</tt>, but whose value can also be, e.g., <tt>"spearman"</tt>.  The <tt>method</tt> argument specifies the type of correlation you should compute with <tt>cor()</tt>. Check that `cor_v1_v2(v1=state.x77[,"Income"],method="spearman")` gives you 0.324105, and `cor_v1_v2(v1=state.x77[,"Life Exp"],method="spearman")` still gives you 1.
+```{r}
+# cor_v1_v2()
+# parameters : v1 - Numeric Vector.
+#              v2 - Numeric Vector (default = state.x77[,"Life Exp"])
+#              method - Method of Correlation
+# returns : Correlation of v1 and v2.
+cor_v1_v2 <- function(v1,v2 = state.x77[,"Life Exp"], method = "pearson" ) {
+  return(cor(v1,v2,method = method))
+}
+
+#Testing
+cor_v1_v2(v1=state.x77[,"Income"],method="spearman")
+cor_v1_v2(v1=state.x77[,"Life Exp"],method="spearman")
+```
+
+**3e.**
+Using `apply()` and the latest version of `cor_v1_v2()`, with <tt>method="spearman"</tt>, compute the Spearman correlation between each one of the eight variables in the <tt>state.x77</tt> matrix and the `Life Exp` variable. Display these correlations.
+```{r}
+apply(state.x77, MARGIN = 2, FUN = cor_v1_v2, method="spearman")
+```
+
